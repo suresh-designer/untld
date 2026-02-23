@@ -14,14 +14,37 @@ export function BookmarkInput({ onAdd, activeFolderId }: BookmarkInputProps) {
     const [value, setValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
+    const isImageUrl = (url: string) => {
+        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.avif'];
+        try {
+            const urlPath = new URL(url).pathname.toLowerCase();
+            return imageExtensions.some(ext => urlPath.endsWith(ext));
+        } catch {
+            return false;
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!value.trim()) return;
 
-        // Check if it's a URL
         let url = value.trim();
         if (!url.startsWith('http')) {
             url = `https://${url}`;
+        }
+
+        // Direct image handling
+        if (isImageUrl(url)) {
+            onAdd({
+                url: url,
+                title: '',
+                favicon: '',
+                image: url,
+                description: '',
+                folderId: activeFolderId,
+            });
+            setValue('');
+            return;
         }
 
         setIsLoading(true);
@@ -35,6 +58,7 @@ export function BookmarkInput({ onAdd, activeFolderId }: BookmarkInputProps) {
                 url: data.url,
                 title: data.title,
                 favicon: data.favicon,
+                image: data.image,
                 description: data.description,
                 folderId: activeFolderId,
             });
@@ -48,21 +72,36 @@ export function BookmarkInput({ onAdd, activeFolderId }: BookmarkInputProps) {
                     url: '',
                     title: value.trim(),
                     favicon: '',
+                    image: '',
                     description: '',
                     folderId: activeFolderId
                 });
                 setValue('');
             } else {
                 // Try to add with what we have
-                const domain = new URL(url).hostname;
-                onAdd({
-                    url: url,
-                    title: domain,
-                    favicon: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
-                    description: '',
-                    folderId: activeFolderId,
-                });
-                setValue('');
+                try {
+                    const domain = new URL(url).hostname;
+                    onAdd({
+                        url: url,
+                        title: domain,
+                        favicon: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
+                        image: '',
+                        description: '',
+                        folderId: activeFolderId,
+                    });
+                    setValue('');
+                } catch (e) {
+                    // Final fallback for truly invalid URLs
+                    onAdd({
+                        url: '',
+                        title: value.trim(),
+                        favicon: '',
+                        image: '',
+                        description: '',
+                        folderId: activeFolderId
+                    });
+                    setValue('');
+                }
             }
         } finally {
             setIsLoading(false);

@@ -27,6 +27,12 @@ export async function GET(request: Request) {
         const title = $('title').text() || $('meta[property="og:title"]').attr('content') || url;
         const description = $('meta[name="description"]').attr('content') || $('meta[property="og:description"]').attr('content') || '';
 
+        // Fetch OG Image
+        const image = $('meta[property="og:image"]').attr('content') ||
+            $('meta[name="twitter:image"]').attr('content') ||
+            $('link[rel="image_src"]').attr('href') ||
+            '';
+
         // Favicon logic
         const domain = new URL(url).hostname;
         const favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
@@ -35,6 +41,7 @@ export async function GET(request: Request) {
             title: title.trim(),
             description: description.trim(),
             favicon,
+            image,
             url
         });
     } catch (error) {
@@ -46,6 +53,7 @@ export async function GET(request: Request) {
                 title: domain,
                 description: '',
                 favicon: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
+                image: '',
                 url
             });
         } catch (e) {

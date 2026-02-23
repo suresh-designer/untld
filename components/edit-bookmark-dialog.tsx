@@ -28,11 +28,13 @@ export function EditBookmarkDialog({
 }: EditBookmarkDialogProps) {
     const [title, setTitle] = useState('');
     const [url, setUrl] = useState('');
+    const [image, setImage] = useState('');
 
     useEffect(() => {
         if (bookmark) {
             setTitle(bookmark.title);
             setUrl(bookmark.url);
+            setImage(bookmark.image || '');
         }
     }, [bookmark]);
 
@@ -40,7 +42,8 @@ export function EditBookmarkDialog({
         if (bookmark && title.trim()) {
             onSave(bookmark.id, {
                 title: title.trim(),
-                url: url.trim()
+                url: url.trim(),
+                image: image.trim()
             });
             onClose();
         }
@@ -69,6 +72,16 @@ export function EditBookmarkDialog({
                             value={url}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
                             className="bg-background border-border"
+                        />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="image">Image URL</Label>
+                        <Input
+                            id="image"
+                            value={image}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setImage(e.target.value)}
+                            className="bg-background border-border"
+                            placeholder="https://example.com/image.jpg"
                         />
                     </div>
                 </div>

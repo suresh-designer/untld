@@ -10,6 +10,7 @@ export interface Bookmark {
   url: string;
   title: string;
   favicon: string;
+  image?: string;
   description?: string;
   folderId: string;
   createdAt: number;

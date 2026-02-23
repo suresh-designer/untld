@@ -229,6 +229,8 @@ async function GET(request) {
         const $ = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$cheerio$2f$dist$2f$esm$2f$load$2d$parse$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["load"](html);
         const title = $('title').text() || $('meta[property="og:title"]').attr('content') || url;
         const description = $('meta[name="description"]').attr('content') || $('meta[property="og:description"]').attr('content') || '';
+        // Fetch OG Image
+        const image = $('meta[property="og:image"]').attr('content') || $('meta[name="twitter:image"]').attr('content') || $('link[rel="image_src"]').attr('href') || '';
         // Favicon logic
         const domain = new URL(url).hostname;
         const favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
@@ -236,6 +238,7 @@ async function GET(request) {
             title: title.trim(),
             description: description.trim(),
             favicon,
+            image,
             url
         });
     } catch (error) {
@@ -247,6 +250,7 @@ async function GET(request) {
                 title: domain,
                 description: '',
                 favicon: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
+                image: '',
                 url
             });
         } catch (e) {

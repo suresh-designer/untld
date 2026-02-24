@@ -1,0 +1,385 @@
+'use client';
+
+import { Item } from '@/types';
+import { ExternalLink, Download, Copy, Check, Globe, Trash2, LayoutGrid, List, Pencil } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+
+interface SectionProps {
+    items: Item[];
+    onDelete: (id: string) => void;
+    onUpdate?: (id: string, updates: Partial<Item>) => void;
+    view?: 'grid' | 'list';
+    onViewChange?: (view: 'grid' | 'list') => void;
+    hideHeading?: boolean;
+    palette?: string[];
+}
+
+export function NotesSection({ items, onDelete, onUpdate, hideHeading }: SectionProps) {
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [tempContent, setTempContent] = useState<string>('');
+
+    if (items.length === 0) return null;
+
+    const handleEdit = (item: Item) => {
+        setEditingId(item.id);
+        setTempContent(item.content);
+    };
+
+    const handleSave = (id: string) => {
+        const el = document.getElementById(`editor-${id}`);
+        const content = el?.innerHTML || tempContent;
+        onUpdate?.(id, { content });
+        setEditingId(null);
+    };
+
+    const handleDiscard = () => {
+        setEditingId(null);
+    };
+
+    const execCommand = (command: string, value?: string) => {
+        // Ensure the editor has focus before executing command
+        const el = document.getElementById(`editor-${editingId}`);
+        if (el) {
+            el.focus();
+            document.execCommand(command, false, value);
+        }
+    };
+
+    return (
+        <div className="space-y-4 h-full">
+            {!hideHeading && <SectionLabel label="Notes" count={items.length} />}
+            <div className="grid grid-cols-1 gap-4">
+                {items.map(item => (
+                    <div key={item.id} className={cn(
+                        "group relative bg-muted/30 border border-border/40 rounded-xl p-4 transition-all",
+                        editingId === item.id ? "ring-2 ring-primary/20 bg-background" : "hover:bg-muted/50"
+                    )}>
+                        {editingId === item.id ? (
+                            <div className="space-y-4">
+                                <div className="flex flex-wrap items-center gap-1 pb-3 border-b border-border/40">
+                                    <button onClick={() => execCommand('bold')} className="p-1.5 hover:bg-muted rounded text-xs px-2 font-bold" title="Bold">B</button>
+                                    <button onClick={() => execCommand('italic')} className="p-1.5 hover:bg-muted rounded text-xs px-2 italic" title="Italic">I</button>
+                                    <button onClick={() => execCommand('underline')} className="p-1.5 hover:bg-muted rounded text-xs px-2 underline" title="Underline">U</button>
+                                </div>
+                                <div
+                                    id={`editor-${item.id}`}
+                                    className="min-h-[100px] outline-none text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none
+                                        prose-h1:text-xl prose-h1:font-bold prose-h1:mb-4
+                                        prose-ul:list-disc prose-ul:ml-4 prose-ol:list-decimal prose-ol:ml-4
+                                        prose-p:mb-2"
+                                    contentEditable
+                                    dangerouslySetInnerHTML={{ __html: item.content }}
+                                />
+                                <div className="flex justify-end gap-2 pt-2">
+                                    <button
+                                        onClick={handleDiscard}
+                                        className="text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 hover:bg-muted rounded-lg transition-colors"
+                                    >
+                                        Discard
+                                    </button>
+                                    <button
+                                        onClick={() => handleSave(item.id)}
+                                        className="text-[10px] uppercase font-bold tracking-widest px-4 py-1.5 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all shadow-sm"
+                                    >
+                                        Save Note
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-all">
+                                    <button
+                                        onClick={() => handleEdit(item)}
+                                        className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg"
+                                        title="Edit Note"
+                                    >
+                                        <Pencil className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => onDelete(item.id)}
+                                        className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-muted rounded-lg"
+                                        title="Delete Note"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
+                                </div>
+                                <div
+                                    className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none 
+                                        prose-h1:text-xl prose-h1:font-bold prose-h1:mb-4
+                                        prose-ul:list-disc prose-ul:ml-4 prose-ol:list-decimal prose-ol:ml-4
+                                        prose-p:mb-2"
+                                    dangerouslySetInnerHTML={{ __html: item.content }}
+                                />
+                            </>
+                        )}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+export function ColorsSection({ items, onDelete, hideHeading }: SectionProps) {
+    const [copiedId, setCopiedId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (copiedId) {
+            const timer = setTimeout(() => setCopiedId(null), 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [copiedId]);
+
+    const handleCopy = (hex: string, id: string) => {
+        navigator.clipboard.writeText(hex);
+        setCopiedId(id);
+    };
+
+    if (items.length === 0) return null;
+    return (
+        <div className="space-y-4">
+            {!hideHeading && <SectionLabel label="Colors" count={items.length} />}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                {items.map(item => (
+                    <div key={item.id} className="group flex flex-col gap-3">
+                        {/* Hover Overlay Container */}
+                        <div className="relative aspect-square bg-muted/20 border border-border/40 rounded-xl overflow-hidden hover:shadow-md transition-all">
+                            <div className="absolute inset-0 z-0" style={{ backgroundColor: item.color_hex || '#000' }} />
+
+                            {/* Hover Overlay */}
+                            <div className="absolute inset-0 z-10 bg-background/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 p-2 transition-opacity">
+                                <button
+                                    onClick={() => handleCopy(item.color_hex!, item.id)}
+                                    className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/80 rounded-lg transition-all"
+                                    title="Copy hex"
+                                >
+                                    {copiedId === item.id ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                                </button>
+                                <button
+                                    onClick={() => onDelete(item.id)}
+                                    className="p-2 text-muted-foreground hover:text-destructive hover:bg-muted/80 rounded-lg transition-all"
+                                    title="Delete color"
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Vertical Labels Below */}
+                        <div className="space-y-0.5 px-0.5">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-foreground select-all">{item.color_hex}</p>
+                            <p className="text-[9px] text-muted-foreground truncate uppercase tracking-tight">{item.color_name}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+export function LinksSection({ items, onDelete, view, onViewChange, hideHeading }: SectionProps) {
+    if (items.length === 0) return null;
+
+    return (
+        <div className="space-y-4">
+            <div className="flex items-center justify-between">
+                {!hideHeading && <SectionLabel label="Links" count={items.length} />}
+                <ViewToggle view={view || 'grid'} onChange={onViewChange!} />
+            </div>
+
+            {view === 'grid' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {items.map(item => {
+                        const domain = new URL(item.content).hostname;
+                        return (
+                            <div key={item.id} className="group relative flex flex-col bg-card border border-border/40 rounded-xl overflow-hidden hover:shadow-md transition-all">
+                                <button onClick={() => onDelete(item.id)} className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 p-1.5 bg-background/80 backdrop-blur-sm rounded-lg text-muted-foreground hover:text-destructive transition-all">
+                                    <Trash2 className="h-4 w-4" />
+                                </button>
+                                <div className="p-4 flex-1">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        {item.favicon ? <img src={item.favicon} alt="" className="h-3 w-3" /> : <Globe className="h-3 w-3 text-muted-foreground" />}
+                                        <span className="text-[10px] uppercase font-medium text-muted-foreground tracking-wider">{domain}</span>
+                                    </div>
+                                    <h3 className="text-sm font-medium line-clamp-2 mb-4 leading-snug">{item.title || item.content}</h3>
+                                    <a
+                                        href={item.content}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 w-full py-2 text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition-all"
+                                    >
+                                        View Link <ExternalLink className="h-3 w-3" />
+                                    </a>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            ) : (
+                <div className="space-y-2">
+                    {items.map(item => {
+                        const domain = new URL(item.content).hostname;
+                        return (
+                            <div key={item.id} className="group flex items-center gap-4 bg-muted/20 border border-border/20 p-3 rounded-xl hover:bg-muted/30 transition-all">
+                                {item.favicon ? <img src={item.favicon} alt="" className="h-4 w-4 shrink-0" /> : <Globe className="h-4 w-4 text-muted-foreground shrink-0" />}
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="text-sm font-medium truncate">{item.title || item.content}</h3>
+                                    <p className="text-[10px] text-muted-foreground uppercase tracking-tight">{domain}</p>
+                                </div>
+                                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <a href={item.content} target="_blank" rel="noopener noreferrer" className="p-2 text-muted-foreground hover:text-foreground">
+                                        <ExternalLink className="h-4 w-4" />
+                                    </a>
+                                    <button onClick={() => onDelete(item.id)} className="p-2 text-muted-foreground hover:text-destructive">
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+}
+
+export function ImagesSection({ items, onDelete, view, onViewChange, hideHeading, palette }: SectionProps) {
+    if (items.length === 0) return null;
+
+    return (
+        <div className="space-y-4">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                    {!hideHeading && <SectionLabel label="Moodboard" count={items.length} />}
+                    {palette && palette.length > 0 && (
+                        <div className="hidden sm:flex items-center gap-2">
+                            <SectionPalette colors={palette.slice(0, 5)} />
+                        </div>
+                    )}
+                </div>
+                <ViewToggle view={view || 'grid'} onChange={onViewChange!} />
+            </div>
+
+            {view === 'grid' ? (
+                <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+                    {items.map(item => (
+                        <div key={item.id} className="group relative break-inside-avoid rounded-xl overflow-hidden border border-border/40 hover:shadow-lg transition-all">
+                            <div className="absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            const res = await fetch(item.image_url!);
+                                            const blob = await res.blob();
+                                            const url = window.URL.createObjectURL(blob);
+                                            const a = document.createElement('a');
+                                            a.href = url;
+                                            a.download = `image-${item.id}.jpg`;
+                                            a.click();
+                                        } catch { window.open(item.image_url, '_blank') }
+                                    }}
+                                    className="p-2 bg-background/80 backdrop-blur-sm rounded-lg text-muted-foreground hover:text-primary transition-all"
+                                >
+                                    <Download className="h-4 w-4" />
+                                </button>
+                                <button onClick={() => onDelete(item.id)} className="p-2 bg-background/80 backdrop-blur-sm rounded-lg text-muted-foreground hover:text-destructive transition-all">
+                                    <Trash2 className="h-4 w-4" />
+                                </button>
+                            </div>
+                            <img src={item.image_url!} alt="" className="w-full h-auto block transform group-hover:scale-[1.02] transition-transform duration-500" />
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+                    {items.map(item => (
+                        <div key={item.id} className="group relative aspect-square bg-muted/20 border border-border/20 rounded-xl overflow-hidden transition-all">
+                            <img src={item.image_url!} alt="" className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity">
+                                <button onClick={() => onDelete(item.id)} className="p-2 text-muted-foreground hover:text-destructive">
+                                    <Trash2 className="h-4 w-4" />
+                                </button>
+                                <button
+                                    onClick={() => window.open(item.image_url, '_blank')}
+                                    className="p-2 text-muted-foreground hover:text-foreground"
+                                >
+                                    <ExternalLink className="h-4 w-4" />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function SectionPalette({ colors }: { colors: string[] }) {
+    const [copiedColor, setCopiedColor] = useState<string | null>(null);
+
+    const handleCopy = (hex: string) => {
+        navigator.clipboard.writeText(hex);
+        setCopiedColor(hex);
+        setTimeout(() => setCopiedColor(null), 2000);
+    };
+
+    return (
+        <div className="flex items-center -space-x-2">
+            {colors.map((hex, i) => (
+                <button
+                    key={`${hex}-${i}`}
+                    onClick={() => handleCopy(hex)}
+                    className="group/swatch relative h-5 w-5 rounded-full border-2 border-background shadow-sm ring-1 ring-border/5 transition-all hover:scale-125 hover:z-30 cursor-pointer outline-none focus:ring-primary/40"
+                    style={{ backgroundColor: hex, zIndex: 10 - i }}
+                    title={hex}
+                >
+                    {copiedColor === hex && (
+                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-foreground text-background text-[8px] font-bold px-1.5 py-0.5 rounded shadow-lg whitespace-nowrap animate-in fade-in zoom-in duration-200">
+                            COPIED
+                        </div>
+                    )}
+                </button>
+            ))}
+        </div>
+    );
+}
+
+function SectionLabel({ label, count }: { label: string; count: number }) {
+    return (
+        <div className="flex items-center gap-3 px-1">
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">{label}</h2>
+            <div className="h-[1px] flex-1 bg-border/40" />
+            <span className="text-[10px] font-mono text-muted-foreground/40">{count}</span>
+        </div>
+    );
+}
+
+function EmptyState({ label }: { label: string }) {
+    return (
+        <div className="space-y-4 opacity-40">
+            <SectionLabel label={label} count={0} />
+            <div className="py-8 flex flex-col items-center justify-center border border-dashed border-border/60 rounded-2xl">
+                <p className="text-[10px] uppercase font-bold tracking-widest">No {label.toLowerCase()} yet</p>
+            </div>
+        </div>
+    );
+}
+
+function ViewToggle({ view, onChange }: { view: 'grid' | 'list'; onChange: (v: 'grid' | 'list') => void }) {
+    return (
+        <div className="flex items-center bg-muted/50 p-1 rounded-lg border border-border/20">
+            <button
+                onClick={() => onChange('list')}
+                className={cn("p-1.5 rounded-md transition-all", view === 'list' ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
+            >
+                <List className="h-3 w-3" />
+            </button>
+            <button
+                onClick={() => onChange('grid')}
+                className={cn("p-1.5 rounded-md transition-all", view === 'grid' ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground")}
+            >
+                <LayoutGrid className="h-3 w-3" />
+            </button>
+        </div>
+    );
+}

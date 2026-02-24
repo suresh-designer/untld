@@ -24,11 +24,52 @@ export function BookmarkInput({ onAdd, activeFolderId }: BookmarkInputProps) {
         }
     };
 
+    const isColor = (str: string) => {
+        const hexRegex = /^#([A-Fa-f0-9]{3}){1,2}$/;
+        const rgbRegex = /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/;
+        const rgbaRegex = /^rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*([\d.]+)\s*\)$/;
+        const hslRegex = /^hsl\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)$/;
+        return hexRegex.test(str) || rgbRegex.test(str) || rgbaRegex.test(str) || hslRegex.test(str);
+    };
+
+    const fetchColorName = async (hex: string) => {
+        try {
+            const cleanHex = hex.replace('#', '');
+            const res = await fetch(`https://www.thecolorapi.com/id?hex=${cleanHex}`);
+            const data = await res.json();
+            return data.name?.value || '';
+        } catch (err) {
+            console.error('Error fetching color name:', err);
+            return '';
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!value.trim()) return;
 
-        let url = value.trim();
+        const trimmedValue = value.trim();
+
+        // Color handling
+        if (isColor(trimmedValue)) {
+            setIsLoading(true);
+            const colorName = await fetchColorName(trimmedValue);
+            onAdd({
+                url: '',
+                title: colorName ? `${trimmedValue} - ${colorName}` : trimmedValue,
+                favicon: '',
+                image: `color:${trimmedValue}`,
+                description: '',
+                folderId: activeFolderId,
+                type: 'color',
+                colorName: colorName
+            });
+            setValue('');
+            setIsLoading(false);
+            return;
+        }
+
+        let url = trimmedValue;
         if (!url.startsWith('http')) {
             url = `https://${url}`;
         }
@@ -42,6 +83,7 @@ export function BookmarkInput({ onAdd, activeFolderId }: BookmarkInputProps) {
                 image: url,
                 description: '',
                 folderId: activeFolderId,
+                type: 'image'
             });
             setValue('');
             return;
@@ -59,8 +101,9 @@ export function BookmarkInput({ onAdd, activeFolderId }: BookmarkInputProps) {
                 title: data.title,
                 favicon: data.favicon,
                 image: data.image,
-                description: data.description,
+                description: '',
                 folderId: activeFolderId,
+                type: data.image ? 'image' : 'link'
             });
             setValue('');
         } catch (err) {
@@ -74,7 +117,8 @@ export function BookmarkInput({ onAdd, activeFolderId }: BookmarkInputProps) {
                     favicon: '',
                     image: '',
                     description: '',
-                    folderId: activeFolderId
+                    folderId: activeFolderId,
+                    type: 'link'
                 });
                 setValue('');
             } else {
@@ -88,6 +132,7 @@ export function BookmarkInput({ onAdd, activeFolderId }: BookmarkInputProps) {
                         image: '',
                         description: '',
                         folderId: activeFolderId,
+                        type: 'link'
                     });
                     setValue('');
                 } catch (e) {
@@ -98,7 +143,8 @@ export function BookmarkInput({ onAdd, activeFolderId }: BookmarkInputProps) {
                         favicon: '',
                         image: '',
                         description: '',
-                        folderId: activeFolderId
+                        folderId: activeFolderId,
+                        type: 'link'
                     });
                     setValue('');
                 }

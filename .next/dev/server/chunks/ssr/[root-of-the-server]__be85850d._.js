@@ -1116,10 +1116,47 @@ function BookmarkInput({ onAdd, activeFolderId }) {
             return false;
         }
     };
+    const isColor = (str)=>{
+        const hexRegex = /^#([A-Fa-f0-9]{3}){1,2}$/;
+        const rgbRegex = /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/;
+        const rgbaRegex = /^rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*([\d.]+)\s*\)$/;
+        const hslRegex = /^hsl\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)$/;
+        return hexRegex.test(str) || rgbRegex.test(str) || rgbaRegex.test(str) || hslRegex.test(str);
+    };
+    const fetchColorName = async (hex)=>{
+        try {
+            const cleanHex = hex.replace('#', '');
+            const res = await fetch(`https://www.thecolorapi.com/id?hex=${cleanHex}`);
+            const data = await res.json();
+            return data.name?.value || '';
+        } catch (err) {
+            console.error('Error fetching color name:', err);
+            return '';
+        }
+    };
     const handleSubmit = async (e)=>{
         e.preventDefault();
         if (!value.trim()) return;
-        let url = value.trim();
+        const trimmedValue = value.trim();
+        // Color handling
+        if (isColor(trimmedValue)) {
+            setIsLoading(true);
+            const colorName = await fetchColorName(trimmedValue);
+            onAdd({
+                url: '',
+                title: colorName ? `${trimmedValue} - ${colorName}` : trimmedValue,
+                favicon: '',
+                image: `color:${trimmedValue}`,
+                description: '',
+                folderId: activeFolderId,
+                type: 'color',
+                colorName: colorName
+            });
+            setValue('');
+            setIsLoading(false);
+            return;
+        }
+        let url = trimmedValue;
         if (!url.startsWith('http')) {
             url = `https://${url}`;
         }
@@ -1131,7 +1168,8 @@ function BookmarkInput({ onAdd, activeFolderId }) {
                 favicon: '',
                 image: url,
                 description: '',
-                folderId: activeFolderId
+                folderId: activeFolderId,
+                type: 'image'
             });
             setValue('');
             return;
@@ -1146,8 +1184,9 @@ function BookmarkInput({ onAdd, activeFolderId }) {
                 title: data.title,
                 favicon: data.favicon,
                 image: data.image,
-                description: data.description,
-                folderId: activeFolderId
+                description: '',
+                folderId: activeFolderId,
+                type: data.image ? 'image' : 'link'
             });
             setValue('');
         } catch (err) {
@@ -1161,7 +1200,8 @@ function BookmarkInput({ onAdd, activeFolderId }) {
                     favicon: '',
                     image: '',
                     description: '',
-                    folderId: activeFolderId
+                    folderId: activeFolderId,
+                    type: 'link'
                 });
                 setValue('');
             } else {
@@ -1174,7 +1214,8 @@ function BookmarkInput({ onAdd, activeFolderId }) {
                         favicon: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
                         image: '',
                         description: '',
-                        folderId: activeFolderId
+                        folderId: activeFolderId,
+                        type: 'link'
                     });
                     setValue('');
                 } catch (e) {
@@ -1185,7 +1226,8 @@ function BookmarkInput({ onAdd, activeFolderId }) {
                         favicon: '',
                         image: '',
                         description: '',
-                        folderId: activeFolderId
+                        folderId: activeFolderId,
+                        type: 'link'
                     });
                     setValue('');
                 }
@@ -1206,7 +1248,7 @@ function BookmarkInput({ onAdd, activeFolderId }) {
                 disabled: isLoading
             }, void 0, false, {
                 fileName: "[project]/components/bookmark-input.tsx",
-                lineNumber: 113,
+                lineNumber: 159,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1215,24 +1257,24 @@ function BookmarkInput({ onAdd, activeFolderId }) {
                     className: "h-5 w-5 animate-spin text-muted-foreground"
                 }, void 0, false, {
                     fileName: "[project]/components/bookmark-input.tsx",
-                    lineNumber: 122,
+                    lineNumber: 168,
                     columnNumber: 21
                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__["Plus"], {
                     className: "h-5 w-5 text-muted-foreground group-focus-within:text-foreground transition-colors"
                 }, void 0, false, {
                     fileName: "[project]/components/bookmark-input.tsx",
-                    lineNumber: 124,
+                    lineNumber: 170,
                     columnNumber: 21
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/bookmark-input.tsx",
-                lineNumber: 120,
+                lineNumber: 166,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/bookmark-input.tsx",
-        lineNumber: 112,
+        lineNumber: 158,
         columnNumber: 9
     }, this);
 }
@@ -1251,6 +1293,10 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$pencil$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Pencil$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/pencil.js [app-ssr] (ecmascript) <export default as Pencil>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$calendar$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Calendar$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/calendar.js [app-ssr] (ecmascript) <export default as Calendar>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$globe$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Globe$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/globe.js [app-ssr] (ecmascript) <export default as Globe>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/download.js [app-ssr] (ecmascript) <export default as Download>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$copy$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Copy$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/copy.js [app-ssr] (ecmascript) <export default as Copy>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/check.js [app-ssr] (ecmascript) <export default as Check>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/button.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/dropdown-menu.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/date-fns/format.js [app-ssr] (ecmascript) <locals>");
@@ -1260,16 +1306,34 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$
 ;
 ;
 ;
+;
 function BookmarkItem({ bookmark, view, onDelete, onEdit }) {
+    const [isCopied, setIsCopied] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const domain = bookmark.url ? new URL(bookmark.url).hostname : '';
     const dateStr = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["format"])(bookmark.createdAt, 'MMM d, yyyy');
+    const isColorBookmark = bookmark.type === 'color';
+    const isImageBookmark = bookmark.type === 'image';
+    const colorCode = isColorBookmark ? bookmark.image?.replace('color:', '') : null;
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        if (isCopied) {
+            const timer = setTimeout(()=>setIsCopied(false), 2000);
+            return ()=>clearTimeout(timer);
+        }
+    }, [
+        isCopied
+    ]);
+    const handleCopyColor = ()=>{
+        if (colorCode) {
+            navigator.clipboard.writeText(colorCode);
+            setIsCopied(true);
+        }
+    };
     if (view === 'grid') {
-        const hasImage = !!bookmark.image;
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "group bg-card border border-border rounded-xl overflow-hidden hover:border-border/80 transition-all hover:shadow-md flex flex-col h-full",
+            className: "group bg-card border border-border rounded-xl overflow-hidden hover:border-border/80 transition-all hover:shadow-md flex flex-col",
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "relative aspect-video w-full bg-muted overflow-hidden flex items-center justify-center",
+                    className: "relative w-full bg-muted overflow-hidden flex items-center justify-center",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity",
@@ -1279,59 +1343,83 @@ function BookmarkItem({ bookmark, view, onDelete, onEdit }) {
                                 onEdit: onEdit
                             }, void 0, false, {
                                 fileName: "[project]/components/bookmark-item.tsx",
-                                lineNumber: 40,
+                                lineNumber: 60,
                                 columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/bookmark-item.tsx",
-                            lineNumber: 39,
+                            lineNumber: 59,
                             columnNumber: 21
                         }, this),
-                        hasImage ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                        isColorBookmark ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "w-full aspect-video",
+                            style: {
+                                backgroundColor: colorCode || 'transparent'
+                            }
+                        }, void 0, false, {
+                            fileName: "[project]/components/bookmark-item.tsx",
+                            lineNumber: 64,
+                            columnNumber: 25
+                        }, this) : isImageBookmark && bookmark.image ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
                             src: bookmark.image,
                             alt: "",
-                            className: "w-full h-full object-cover transition-transform group-hover:scale-105",
+                            className: "w-full h-auto object-cover transition-transform group-hover:scale-105 rounded-t-xl",
                             onError: (e)=>{
                                 e.currentTarget.style.display = 'none';
                                 e.currentTarget.parentElement?.classList.add('flex-col');
                             }
                         }, void 0, false, {
                             fileName: "[project]/components/bookmark-item.tsx",
-                            lineNumber: 44,
+                            lineNumber: 69,
+                            columnNumber: 25
+                        }, this) : bookmark.image ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "relative aspect-video w-full overflow-hidden",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                src: bookmark.image,
+                                alt: "",
+                                className: "w-full h-full object-cover transition-transform group-hover:scale-105"
+                            }, void 0, false, {
+                                fileName: "[project]/components/bookmark-item.tsx",
+                                lineNumber: 80,
+                                columnNumber: 29
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/components/bookmark-item.tsx",
+                            lineNumber: 79,
                             columnNumber: 25
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "flex flex-col items-center justify-center space-y-2 opacity-40",
+                            className: "flex flex-col items-center justify-center aspect-video space-y-2 opacity-40",
                             children: bookmark.favicon ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
                                 src: bookmark.favicon,
                                 alt: "",
                                 className: "h-8 w-8"
                             }, void 0, false, {
                                 fileName: "[project]/components/bookmark-item.tsx",
-                                lineNumber: 56,
+                                lineNumber: 89,
                                 columnNumber: 33
                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$globe$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Globe$3e$__["Globe"], {
                                 className: "h-8 w-8"
                             }, void 0, false, {
                                 fileName: "[project]/components/bookmark-item.tsx",
-                                lineNumber: 58,
+                                lineNumber: 91,
                                 columnNumber: 33
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/bookmark-item.tsx",
-                            lineNumber: 54,
+                            lineNumber: 87,
                             columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/bookmark-item.tsx",
-                    lineNumber: 38,
+                    lineNumber: 58,
                     columnNumber: 17
                 }, this),
-                bookmark.title && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "p-4 flex-1 flex flex-col justify-between",
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "p-4 flex-1 flex flex-col",
                     children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "space-y-1",
+                        !isImageBookmark && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "space-y-1 mb-4",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "flex items-center gap-2 mb-1",
@@ -1342,7 +1430,7 @@ function BookmarkItem({ bookmark, view, onDelete, onEdit }) {
                                             className: "h-3 w-3 rounded-sm"
                                         }, void 0, false, {
                                             fileName: "[project]/components/bookmark-item.tsx",
-                                            lineNumber: 69,
+                                            lineNumber: 102,
                                             columnNumber: 37
                                         }, this),
                                         domain && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1350,13 +1438,13 @@ function BookmarkItem({ bookmark, view, onDelete, onEdit }) {
                                             children: domain
                                         }, void 0, false, {
                                             fileName: "[project]/components/bookmark-item.tsx",
-                                            lineNumber: 71,
+                                            lineNumber: 104,
                                             columnNumber: 44
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/bookmark-item.tsx",
-                                    lineNumber: 67,
+                                    lineNumber: 100,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -1364,53 +1452,119 @@ function BookmarkItem({ bookmark, view, onDelete, onEdit }) {
                                     children: bookmark.title
                                 }, void 0, false, {
                                     fileName: "[project]/components/bookmark-item.tsx",
-                                    lineNumber: 73,
+                                    lineNumber: 106,
                                     columnNumber: 29
-                                }, this),
-                                bookmark.description && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                    className: "text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed",
-                                    children: bookmark.description
-                                }, void 0, false, {
-                                    fileName: "[project]/components/bookmark-item.tsx",
-                                    lineNumber: 75,
-                                    columnNumber: 33
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/bookmark-item.tsx",
-                            lineNumber: 66,
+                            lineNumber: 99,
                             columnNumber: 25
                         }, this),
-                        bookmark.url && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                            href: bookmark.url,
-                            target: "_blank",
-                            rel: "noopener noreferrer",
-                            className: "mt-4 flex items-center justify-center gap-2 w-full p-2 text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition-all",
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "mt-auto",
                             children: [
-                                "Open Link ",
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__["ExternalLink"], {
-                                    className: "h-3 w-3"
+                                bookmark.type === 'link' && bookmark.url && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                    href: bookmark.url,
+                                    target: "_blank",
+                                    rel: "noopener noreferrer",
+                                    className: "flex items-center justify-center gap-2 w-full p-2 text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition-all",
+                                    children: [
+                                        "View Link ",
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__["ExternalLink"], {
+                                            className: "h-3 w-3"
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/bookmark-item.tsx",
+                                            lineNumber: 118,
+                                            columnNumber: 43
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/components/bookmark-item.tsx",
+                                    lineNumber: 112,
+                                    columnNumber: 29
+                                }, this),
+                                bookmark.type === 'image' && bookmark.image && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    onClick: async ()=>{
+                                        try {
+                                            const response = await fetch(bookmark.image);
+                                            const blob = await response.blob();
+                                            const url = window.URL.createObjectURL(blob);
+                                            const link = document.createElement('a');
+                                            link.href = url;
+                                            const filename = bookmark.image.split('/').pop()?.split('?')[0] || 'image';
+                                            link.download = filename.includes('.') ? filename : `${filename}.jpg`;
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            document.body.removeChild(link);
+                                            window.URL.revokeObjectURL(url);
+                                        } catch (error) {
+                                            window.open(bookmark.image, '_blank');
+                                        }
+                                    },
+                                    className: "flex items-center justify-center gap-2 w-full p-2 text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition-all",
+                                    children: [
+                                        "Download Image ",
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
+                                            className: "h-3 w-3"
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/bookmark-item.tsx",
+                                            lineNumber: 143,
+                                            columnNumber: 48
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/components/bookmark-item.tsx",
+                                    lineNumber: 123,
+                                    columnNumber: 29
+                                }, this),
+                                bookmark.type === 'color' && colorCode && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    onClick: handleCopyColor,
+                                    className: "flex items-center justify-center gap-2 w-full p-2 text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition-all",
+                                    children: isCopied ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+                                        children: [
+                                            "Copied! ",
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                                                className: "h-3 w-3 text-green-500"
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/bookmark-item.tsx",
+                                                lineNumber: 153,
+                                                columnNumber: 47
+                                            }, this)
+                                        ]
+                                    }, void 0, true) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+                                        children: [
+                                            "Copy Color Code ",
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$copy$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Copy$3e$__["Copy"], {
+                                                className: "h-3 w-3"
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/bookmark-item.tsx",
+                                                lineNumber: 155,
+                                                columnNumber: 55
+                                            }, this)
+                                        ]
+                                    }, void 0, true)
                                 }, void 0, false, {
                                     fileName: "[project]/components/bookmark-item.tsx",
-                                    lineNumber: 86,
-                                    columnNumber: 43
+                                    lineNumber: 148,
+                                    columnNumber: 29
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/bookmark-item.tsx",
-                            lineNumber: 80,
-                            columnNumber: 29
+                            lineNumber: 110,
+                            columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/bookmark-item.tsx",
-                    lineNumber: 65,
-                    columnNumber: 21
+                    lineNumber: 97,
+                    columnNumber: 17
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/bookmark-item.tsx",
-            lineNumber: 37,
+            lineNumber: 57,
             columnNumber: 13
         }, this);
     }
@@ -1428,7 +1582,16 @@ function BookmarkItem({ bookmark, view, onDelete, onEdit }) {
                             className: "h-6 w-6"
                         }, void 0, false, {
                             fileName: "[project]/components/bookmark-item.tsx",
-                            lineNumber: 100,
+                            lineNumber: 170,
+                            columnNumber: 25
+                        }, this) : isColorBookmark ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "h-full w-full",
+                            style: {
+                                backgroundColor: colorCode || 'transparent'
+                            }
+                        }, void 0, false, {
+                            fileName: "[project]/components/bookmark-item.tsx",
+                            lineNumber: 172,
                             columnNumber: 25
                         }, this) : bookmark.image ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
                             src: bookmark.image,
@@ -1436,18 +1599,18 @@ function BookmarkItem({ bookmark, view, onDelete, onEdit }) {
                             className: "h-full w-full object-cover"
                         }, void 0, false, {
                             fileName: "[project]/components/bookmark-item.tsx",
-                            lineNumber: 102,
+                            lineNumber: 177,
                             columnNumber: 25
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$globe$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Globe$3e$__["Globe"], {
                             className: "h-5 w-5 text-muted-foreground"
                         }, void 0, false, {
                             fileName: "[project]/components/bookmark-item.tsx",
-                            lineNumber: 104,
+                            lineNumber: 179,
                             columnNumber: 25
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/bookmark-item.tsx",
-                        lineNumber: 98,
+                        lineNumber: 168,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1458,7 +1621,7 @@ function BookmarkItem({ bookmark, view, onDelete, onEdit }) {
                                 children: bookmark.title || domain || bookmark.url
                             }, void 0, false, {
                                 fileName: "[project]/components/bookmark-item.tsx",
-                                lineNumber: 109,
+                                lineNumber: 184,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1469,7 +1632,7 @@ function BookmarkItem({ bookmark, view, onDelete, onEdit }) {
                                         children: domain
                                     }, void 0, false, {
                                         fileName: "[project]/components/bookmark-item.tsx",
-                                        lineNumber: 113,
+                                        lineNumber: 188,
                                         columnNumber: 36
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1479,38 +1642,38 @@ function BookmarkItem({ bookmark, view, onDelete, onEdit }) {
                                                 className: "h-3 w-3"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/bookmark-item.tsx",
-                                                lineNumber: 115,
+                                                lineNumber: 190,
                                                 columnNumber: 29
                                             }, this),
                                             dateStr
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/bookmark-item.tsx",
-                                        lineNumber: 114,
+                                        lineNumber: 189,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/bookmark-item.tsx",
-                                lineNumber: 112,
+                                lineNumber: 187,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/bookmark-item.tsx",
-                        lineNumber: 108,
+                        lineNumber: 183,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/bookmark-item.tsx",
-                lineNumber: 97,
+                lineNumber: 167,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-4",
                 children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
+                    bookmark.type === 'link' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
                         variant: "ghost",
                         size: "icon",
                         className: "h-8 w-8",
@@ -1524,18 +1687,42 @@ function BookmarkItem({ bookmark, view, onDelete, onEdit }) {
                                 className: "h-4 w-4"
                             }, void 0, false, {
                                 fileName: "[project]/components/bookmark-item.tsx",
-                                lineNumber: 131,
-                                columnNumber: 25
+                                lineNumber: 207,
+                                columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/bookmark-item.tsx",
-                            lineNumber: 130,
-                            columnNumber: 21
+                            lineNumber: 206,
+                            columnNumber: 25
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/bookmark-item.tsx",
-                        lineNumber: 123,
-                        columnNumber: 17
+                        lineNumber: 199,
+                        columnNumber: 21
+                    }, this),
+                    bookmark.type === 'color' && colorCode && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
+                        variant: "ghost",
+                        size: "icon",
+                        className: "h-8 w-8",
+                        onClick: handleCopyColor,
+                        title: "Copy color code",
+                        children: isCopied ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                            className: "h-4 w-4 text-green-500"
+                        }, void 0, false, {
+                            fileName: "[project]/components/bookmark-item.tsx",
+                            lineNumber: 219,
+                            columnNumber: 37
+                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$copy$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Copy$3e$__["Copy"], {
+                            className: "h-4 w-4"
+                        }, void 0, false, {
+                            fileName: "[project]/components/bookmark-item.tsx",
+                            lineNumber: 219,
+                            columnNumber: 84
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/components/bookmark-item.tsx",
+                        lineNumber: 212,
+                        columnNumber: 21
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BookmarkActions, {
                         bookmark: bookmark,
@@ -1543,19 +1730,19 @@ function BookmarkItem({ bookmark, view, onDelete, onEdit }) {
                         onEdit: onEdit
                     }, void 0, false, {
                         fileName: "[project]/components/bookmark-item.tsx",
-                        lineNumber: 134,
+                        lineNumber: 222,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/bookmark-item.tsx",
-                lineNumber: 122,
+                lineNumber: 197,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/bookmark-item.tsx",
-        lineNumber: 96,
+        lineNumber: 166,
         columnNumber: 9
     }, this);
 }
@@ -1572,17 +1759,17 @@ function BookmarkActions({ bookmark, onDelete, onEdit }) {
                         className: "h-4 w-4"
                     }, void 0, false, {
                         fileName: "[project]/components/bookmark-item.tsx",
-                        lineNumber: 149,
+                        lineNumber: 237,
                         columnNumber: 21
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/bookmark-item.tsx",
-                    lineNumber: 148,
+                    lineNumber: 236,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/bookmark-item.tsx",
-                lineNumber: 147,
+                lineNumber: 235,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -1596,15 +1783,50 @@ function BookmarkActions({ bookmark, onDelete, onEdit }) {
                                 className: "h-4 w-4 mr-2"
                             }, void 0, false, {
                                 fileName: "[project]/components/bookmark-item.tsx",
-                                lineNumber: 154,
+                                lineNumber: 242,
                                 columnNumber: 21
                             }, this),
                             " Edit"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/bookmark-item.tsx",
-                        lineNumber: 153,
+                        lineNumber: 241,
                         columnNumber: 17
+                    }, this),
+                    bookmark.type === 'image' && bookmark.image && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
+                        onClick: async ()=>{
+                            try {
+                                const response = await fetch(bookmark.image);
+                                const blob = await response.blob();
+                                const url = window.URL.createObjectURL(blob);
+                                const link = document.createElement('a');
+                                link.href = url;
+                                // Try to get filename from URL
+                                const filename = bookmark.image.split('/').pop()?.split('?')[0] || 'image';
+                                link.download = filename.includes('.') ? filename : `${filename}.jpg`;
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                                window.URL.revokeObjectURL(url);
+                            } catch (error) {
+                                console.error('Download failed, opening in new tab:', error);
+                                window.open(bookmark.image, '_blank');
+                            }
+                        },
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
+                                className: "h-4 w-4 mr-2"
+                            }, void 0, false, {
+                                fileName: "[project]/components/bookmark-item.tsx",
+                                lineNumber: 266,
+                                columnNumber: 25
+                            }, this),
+                            " Download"
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/components/bookmark-item.tsx",
+                        lineNumber: 245,
+                        columnNumber: 21
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
                         className: "text-destructive focus:text-destructive",
@@ -1614,26 +1836,26 @@ function BookmarkActions({ bookmark, onDelete, onEdit }) {
                                 className: "h-4 w-4 mr-2"
                             }, void 0, false, {
                                 fileName: "[project]/components/bookmark-item.tsx",
-                                lineNumber: 160,
+                                lineNumber: 273,
                                 columnNumber: 21
                             }, this),
                             " Delete"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/bookmark-item.tsx",
-                        lineNumber: 156,
+                        lineNumber: 269,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/bookmark-item.tsx",
-                lineNumber: 152,
+                lineNumber: 240,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/bookmark-item.tsx",
-        lineNumber: 146,
+        lineNumber: 234,
         columnNumber: 9
     }, this);
 }

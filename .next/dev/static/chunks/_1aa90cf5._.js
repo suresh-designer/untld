@@ -12,7 +12,8 @@ var _s = __turbopack_context__.k.signature();
 'use client';
 ;
 ;
-const STORAGE_KEY = 'untld-moodboard-storage';
+const FOLDERS_TABLE = 'folders';
+const ITEMS_TABLE = 'moodboard_items';
 const DEFAULT_FOLDER_ID = 'default-moodboard';
 const FOLDER_COLORS = [
     '#22c55e',
@@ -44,17 +45,34 @@ function useItemStore() {
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "useItemStore.useEffect": ()=>{
             if ("TURBOPACK compile-time truthy", 1) {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
+                const savedItems = localStorage.getItem('moodboard_items');
+                const savedFolders = localStorage.getItem('moodboard_folders');
+                let loadedItems = [];
+                let loadedFolders = initialState.folders;
+                if (savedItems) {
                     try {
-                        const parsed = JSON.parse(saved);
-                        if (parsed && (parsed.folders || parsed.items)) {
-                            setState(parsed);
+                        const parsed = JSON.parse(savedItems);
+                        if (Array.isArray(parsed)) {
+                            loadedItems = parsed;
                         }
                     } catch (e) {
-                        console.error('Failed to parse storage', e);
+                        console.error('Failed to parse moodboard_items', e);
                     }
                 }
+                if (savedFolders) {
+                    try {
+                        const parsed = JSON.parse(savedFolders);
+                        if (Array.isArray(parsed)) {
+                            loadedFolders = parsed;
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse moodboard_folders', e);
+                    }
+                }
+                setState({
+                    items: loadedItems,
+                    folders: loadedFolders
+                });
                 setIsLoaded(true);
             }
         }
@@ -63,11 +81,13 @@ function useItemStore() {
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "useItemStore.useEffect": ()=>{
             if (isLoaded && ("TURBOPACK compile-time value", "object") !== 'undefined') {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                localStorage.setItem('moodboard_items', JSON.stringify(state.items));
+                localStorage.setItem('moodboard_folders', JSON.stringify(state.folders));
             }
         }
     }["useItemStore.useEffect"], [
-        state,
+        state.items,
+        state.folders,
         isLoaded
     ]);
     const addFolder = (name, color)=>{
@@ -120,10 +140,20 @@ function useItemStore() {
         if (state.items.length >= 100) {
             throw new Error('Limit reached: Maximum 100 blocks allowed.');
         }
+        let palette = undefined;
+        if (item.type === 'image' && item.image_url) {
+            const { extractPaletteFromImage } = await __turbopack_context__.A("[project]/lib/color-utils.ts [app-client] (ecmascript, async loader)");
+            try {
+                palette = await extractPaletteFromImage(item.image_url);
+            } catch (e) {
+                console.error('Failed to extract palette', e);
+            }
+        }
         const newItem = {
             ...item,
             id: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$uuid$2f$dist$2f$v4$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__v4$3e$__["v4"])(),
-            created_at: new Date().toISOString()
+            palette,
+            created_at: Date.now()
         };
         setState((prev)=>({
                 ...prev,
@@ -391,19 +421,10 @@ function UnifiedInput({ onAdd }) {
                 new URL(url); // Validate URL
                 // Image Check
                 if (isImageUrl(url)) {
-                    let extractedPalette = [];
-                    // Extract Palette
-                    try {
-                        const { extractPaletteFromImage } = await __turbopack_context__.A("[project]/lib/color-utils.ts [app-client] (ecmascript, async loader)");
-                        extractedPalette = await extractPaletteFromImage(url);
-                    } catch (err) {
-                        console.error('Color extraction failed:', err);
-                    }
                     await onAdd({
                         type: 'image',
                         content: url,
-                        image_url: url,
-                        colors: extractedPalette
+                        image_url: url
                     });
                 } else {
                     // Fetch Metadata for Link
@@ -445,7 +466,7 @@ function UnifiedInput({ onAdd }) {
                 disabled: isLoading
             }, void 0, false, {
                 fileName: "[project]/components/unified-input.tsx",
-                lineNumber: 120,
+                lineNumber: 109,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -454,18 +475,18 @@ function UnifiedInput({ onAdd }) {
                     className: "h-5 w-5 animate-spin"
                 }, void 0, false, {
                     fileName: "[project]/components/unified-input.tsx",
-                    lineNumber: 129,
+                    lineNumber: 118,
                     columnNumber: 30
                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__["Plus"], {
                     className: "h-5 w-5"
                 }, void 0, false, {
                     fileName: "[project]/components/unified-input.tsx",
-                    lineNumber: 129,
+                    lineNumber: 118,
                     columnNumber: 77
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/unified-input.tsx",
-                lineNumber: 128,
+                lineNumber: 117,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -478,25 +499,25 @@ function UnifiedInput({ onAdd }) {
                             children: "⏎"
                         }, void 0, false, {
                             fileName: "[project]/components/unified-input.tsx",
-                            lineNumber: 133,
+                            lineNumber: 122,
                             columnNumber: 21
                         }, this),
                         " ENTER"
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/unified-input.tsx",
-                    lineNumber: 132,
+                    lineNumber: 121,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/unified-input.tsx",
-                lineNumber: 131,
+                lineNumber: 120,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/unified-input.tsx",
-        lineNumber: 119,
+        lineNumber: 108,
         columnNumber: 9
     }, this);
 }
@@ -1943,51 +1964,69 @@ function ImagesSection({ items, onDelete, view, onViewChange, hideHeading, palet
             view === 'grid' ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4",
                 children: items.map((item)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "group relative break-inside-avoid rounded-xl overflow-hidden border border-border/40 hover:shadow-lg transition-all",
+                        className: "group flex flex-col break-inside-avoid rounded-xl overflow-hidden border border-border/40 hover:shadow-lg transition-all bg-card",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity",
+                                className: "relative",
                                 children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                        onClick: async ()=>{
-                                            try {
-                                                const res = await fetch(item.image_url);
-                                                const blob = await res.blob();
-                                                const url = window.URL.createObjectURL(blob);
-                                                const a = document.createElement('a');
-                                                a.href = url;
-                                                a.download = `image-${item.id}.jpg`;
-                                                a.click();
-                                            } catch  {
-                                                window.open(item.image_url, '_blank');
-                                            }
-                                        },
-                                        className: "p-2 bg-background/80 backdrop-blur-sm rounded-lg text-muted-foreground hover:text-primary transition-all",
-                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
-                                            className: "h-4 w-4"
-                                        }, void 0, false, {
-                                            fileName: "[project]/components/moodboard-sections.tsx",
-                                            lineNumber: 283,
-                                            columnNumber: 37
-                                        }, this)
-                                    }, void 0, false, {
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                onClick: async ()=>{
+                                                    try {
+                                                        const res = await fetch(item.image_url);
+                                                        const blob = await res.blob();
+                                                        const url = window.URL.createObjectURL(blob);
+                                                        const a = document.createElement('a');
+                                                        a.href = url;
+                                                        a.download = `image-${item.id}.jpg`;
+                                                        a.click();
+                                                    } catch  {
+                                                        window.open(item.image_url, '_blank');
+                                                    }
+                                                },
+                                                className: "p-2 bg-background/80 backdrop-blur-sm rounded-lg text-muted-foreground hover:text-primary transition-all",
+                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
+                                                    className: "h-4 w-4"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/moodboard-sections.tsx",
+                                                    lineNumber: 284,
+                                                    columnNumber: 41
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/moodboard-sections.tsx",
+                                                lineNumber: 270,
+                                                columnNumber: 37
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                onClick: ()=>onDelete(item.id),
+                                                className: "p-2 bg-background/80 backdrop-blur-sm rounded-lg text-muted-foreground hover:text-destructive transition-all",
+                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
+                                                    className: "h-4 w-4"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/moodboard-sections.tsx",
+                                                    lineNumber: 287,
+                                                    columnNumber: 41
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/moodboard-sections.tsx",
+                                                lineNumber: 286,
+                                                columnNumber: 37
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
                                         fileName: "[project]/components/moodboard-sections.tsx",
                                         lineNumber: 269,
                                         columnNumber: 33
                                     }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                        onClick: ()=>onDelete(item.id),
-                                        className: "p-2 bg-background/80 backdrop-blur-sm rounded-lg text-muted-foreground hover:text-destructive transition-all",
-                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
-                                            className: "h-4 w-4"
-                                        }, void 0, false, {
-                                            fileName: "[project]/components/moodboard-sections.tsx",
-                                            lineNumber: 286,
-                                            columnNumber: 37
-                                        }, this)
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                        src: item.image_url,
+                                        alt: "",
+                                        className: "w-full h-auto block transform group-hover:scale-[1.02] transition-transform duration-500"
                                     }, void 0, false, {
                                         fileName: "[project]/components/moodboard-sections.tsx",
-                                        lineNumber: 285,
+                                        lineNumber: 290,
                                         columnNumber: 33
                                     }, this)
                                 ]
@@ -1996,14 +2035,19 @@ function ImagesSection({ items, onDelete, view, onViewChange, hideHeading, palet
                                 lineNumber: 268,
                                 columnNumber: 29
                             }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
-                                src: item.image_url,
-                                alt: "",
-                                className: "w-full h-auto block transform group-hover:scale-[1.02] transition-transform duration-500"
+                            item.palette && item.palette.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "p-3 border-t border-border/40 bg-muted/5",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SectionPalette, {
+                                    colors: item.palette
+                                }, void 0, false, {
+                                    fileName: "[project]/components/moodboard-sections.tsx",
+                                    lineNumber: 295,
+                                    columnNumber: 37
+                                }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/moodboard-sections.tsx",
-                                lineNumber: 289,
-                                columnNumber: 29
+                                lineNumber: 294,
+                                columnNumber: 33
                             }, this)
                         ]
                     }, item.id, true, {
@@ -2018,65 +2062,88 @@ function ImagesSection({ items, onDelete, view, onViewChange, hideHeading, palet
             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4",
                 children: items.map((item)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "group relative aspect-square bg-muted/20 border border-border/20 rounded-xl overflow-hidden transition-all",
+                        className: "group flex flex-col bg-card border border-border/20 rounded-xl overflow-hidden transition-all",
                         children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
-                                src: item.image_url,
-                                alt: "",
-                                className: "w-full h-full object-cover"
-                            }, void 0, false, {
-                                fileName: "[project]/components/moodboard-sections.tsx",
-                                lineNumber: 297,
-                                columnNumber: 29
-                            }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "absolute inset-0 bg-background/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity",
+                                className: "relative aspect-square overflow-hidden bg-muted/20",
                                 children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                        onClick: ()=>onDelete(item.id),
-                                        className: "p-2 text-muted-foreground hover:text-destructive",
-                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
-                                            className: "h-4 w-4"
-                                        }, void 0, false, {
-                                            fileName: "[project]/components/moodboard-sections.tsx",
-                                            lineNumber: 300,
-                                            columnNumber: 37
-                                        }, this)
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                        src: item.image_url,
+                                        alt: "",
+                                        className: "w-full h-full object-cover"
                                     }, void 0, false, {
                                         fileName: "[project]/components/moodboard-sections.tsx",
-                                        lineNumber: 299,
+                                        lineNumber: 306,
                                         columnNumber: 33
                                     }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                        onClick: ()=>window.open(item.image_url, '_blank'),
-                                        className: "p-2 text-muted-foreground hover:text-foreground",
-                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__["ExternalLink"], {
-                                            className: "h-4 w-4"
-                                        }, void 0, false, {
-                                            fileName: "[project]/components/moodboard-sections.tsx",
-                                            lineNumber: 306,
-                                            columnNumber: 37
-                                        }, this)
-                                    }, void 0, false, {
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "absolute inset-0 bg-background/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                onClick: ()=>onDelete(item.id),
+                                                className: "p-2 text-muted-foreground hover:text-destructive",
+                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
+                                                    className: "h-4 w-4"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/moodboard-sections.tsx",
+                                                    lineNumber: 309,
+                                                    columnNumber: 41
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/moodboard-sections.tsx",
+                                                lineNumber: 308,
+                                                columnNumber: 37
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                onClick: ()=>window.open(item.image_url, '_blank'),
+                                                className: "p-2 text-muted-foreground hover:text-foreground",
+                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__["ExternalLink"], {
+                                                    className: "h-4 w-4"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/moodboard-sections.tsx",
+                                                    lineNumber: 315,
+                                                    columnNumber: 41
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/moodboard-sections.tsx",
+                                                lineNumber: 311,
+                                                columnNumber: 37
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
                                         fileName: "[project]/components/moodboard-sections.tsx",
-                                        lineNumber: 302,
+                                        lineNumber: 307,
                                         columnNumber: 33
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/moodboard-sections.tsx",
-                                lineNumber: 298,
+                                lineNumber: 305,
                                 columnNumber: 29
+                            }, this),
+                            item.palette && item.palette.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "p-2 border-t border-border/40 bg-muted/5",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SectionPalette, {
+                                    colors: item.palette.slice(0, 4)
+                                }, void 0, false, {
+                                    fileName: "[project]/components/moodboard-sections.tsx",
+                                    lineNumber: 321,
+                                    columnNumber: 37
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "[project]/components/moodboard-sections.tsx",
+                                lineNumber: 320,
+                                columnNumber: 33
                             }, this)
                         ]
                     }, item.id, true, {
                         fileName: "[project]/components/moodboard-sections.tsx",
-                        lineNumber: 296,
+                        lineNumber: 304,
                         columnNumber: 25
                     }, this))
             }, void 0, false, {
                 fileName: "[project]/components/moodboard-sections.tsx",
-                lineNumber: 294,
+                lineNumber: 302,
                 columnNumber: 17
             }, this)
         ]
@@ -2096,31 +2163,30 @@ function SectionPalette({ colors }) {
         setTimeout(()=>setCopiedColor(null), 2000);
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "flex items-center -space-x-2",
+        className: "flex items-center gap-2",
         children: colors.map((hex, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 onClick: ()=>handleCopy(hex),
-                className: "group/swatch relative h-5 w-5 rounded-full border-2 border-background shadow-sm ring-1 ring-border/5 transition-all hover:scale-125 hover:z-30 cursor-pointer outline-none focus:ring-primary/40",
+                className: "group/swatch relative h-4 w-4 rounded-full border border-border/20 shadow-sm transition-all hover:scale-110 cursor-pointer outline-none focus:ring-1 focus:ring-primary/40",
                 style: {
-                    backgroundColor: hex,
-                    zIndex: 10 - i
+                    backgroundColor: hex
                 },
                 title: hex,
                 children: copiedColor === hex && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "absolute -top-8 left-1/2 -translate-x-1/2 bg-foreground text-background text-[8px] font-bold px-1.5 py-0.5 rounded shadow-lg whitespace-nowrap animate-in fade-in zoom-in duration-200",
+                    className: "absolute -top-7 left-1/2 -translate-x-1/2 bg-foreground text-background text-[7px] font-bold px-1 py-0.5 rounded shadow-lg whitespace-nowrap z-50 animate-in fade-in zoom-in duration-200",
                     children: "COPIED"
                 }, void 0, false, {
                     fileName: "[project]/components/moodboard-sections.tsx",
-                    lineNumber: 337,
+                    lineNumber: 352,
                     columnNumber: 25
                 }, this)
             }, `${hex}-${i}`, false, {
                 fileName: "[project]/components/moodboard-sections.tsx",
-                lineNumber: 329,
+                lineNumber: 344,
                 columnNumber: 17
             }, this))
     }, void 0, false, {
         fileName: "[project]/components/moodboard-sections.tsx",
-        lineNumber: 327,
+        lineNumber: 342,
         columnNumber: 9
     }, this);
 }
@@ -2135,14 +2201,14 @@ function SectionLabel({ label, count }) {
                 children: label
             }, void 0, false, {
                 fileName: "[project]/components/moodboard-sections.tsx",
-                lineNumber: 350,
+                lineNumber: 365,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "h-[1px] flex-1 bg-border/40"
             }, void 0, false, {
                 fileName: "[project]/components/moodboard-sections.tsx",
-                lineNumber: 351,
+                lineNumber: 366,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2150,13 +2216,13 @@ function SectionLabel({ label, count }) {
                 children: count
             }, void 0, false, {
                 fileName: "[project]/components/moodboard-sections.tsx",
-                lineNumber: 352,
+                lineNumber: 367,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/moodboard-sections.tsx",
-        lineNumber: 349,
+        lineNumber: 364,
         columnNumber: 9
     }, this);
 }
@@ -2170,7 +2236,7 @@ function EmptyState({ label }) {
                 count: 0
             }, void 0, false, {
                 fileName: "[project]/components/moodboard-sections.tsx",
-                lineNumber: 360,
+                lineNumber: 375,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2184,18 +2250,18 @@ function EmptyState({ label }) {
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/moodboard-sections.tsx",
-                    lineNumber: 362,
+                    lineNumber: 377,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/moodboard-sections.tsx",
-                lineNumber: 361,
+                lineNumber: 376,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/moodboard-sections.tsx",
-        lineNumber: 359,
+        lineNumber: 374,
         columnNumber: 9
     }, this);
 }
@@ -2211,12 +2277,12 @@ function ViewToggle({ view, onChange }) {
                     className: "h-3 w-3"
                 }, void 0, false, {
                     fileName: "[project]/components/moodboard-sections.tsx",
-                    lineNumber: 375,
+                    lineNumber: 390,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/moodboard-sections.tsx",
-                lineNumber: 371,
+                lineNumber: 386,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2226,18 +2292,18 @@ function ViewToggle({ view, onChange }) {
                     className: "h-3 w-3"
                 }, void 0, false, {
                     fileName: "[project]/components/moodboard-sections.tsx",
-                    lineNumber: 381,
+                    lineNumber: 396,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/moodboard-sections.tsx",
-                lineNumber: 377,
+                lineNumber: 392,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/moodboard-sections.tsx",
-        lineNumber: 370,
+        lineNumber: 385,
         columnNumber: 9
     }, this);
 }
@@ -2629,7 +2695,7 @@ function Home() {
                                 view: imagesView,
                                 onViewChange: setImagesView,
                                 hideHeading: false,
-                                palette: Array.from(new Set(grouped.image.flatMap((img)=>img.colors || []))).slice(0, 5)
+                                palette: Array.from(new Set(grouped.image.flatMap((img)=>img.palette || []))).slice(0, 5)
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
                                 lineNumber: 171,

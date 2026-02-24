@@ -264,48 +264,63 @@ export function ImagesSection({ items, onDelete, view, onViewChange, hideHeading
             {view === 'grid' ? (
                 <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
                     {items.map(item => (
-                        <div key={item.id} className="group relative break-inside-avoid rounded-xl overflow-hidden border border-border/40 hover:shadow-lg transition-all">
-                            <div className="absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                    onClick={async () => {
-                                        try {
-                                            const res = await fetch(item.image_url!);
-                                            const blob = await res.blob();
-                                            const url = window.URL.createObjectURL(blob);
-                                            const a = document.createElement('a');
-                                            a.href = url;
-                                            a.download = `image-${item.id}.jpg`;
-                                            a.click();
-                                        } catch { window.open(item.image_url, '_blank') }
-                                    }}
-                                    className="p-2 bg-background/80 backdrop-blur-sm rounded-lg text-muted-foreground hover:text-primary transition-all"
-                                >
-                                    <Download className="h-4 w-4" />
-                                </button>
-                                <button onClick={() => onDelete(item.id)} className="p-2 bg-background/80 backdrop-blur-sm rounded-lg text-muted-foreground hover:text-destructive transition-all">
-                                    <Trash2 className="h-4 w-4" />
-                                </button>
+                        <div key={item.id} className="group flex flex-col break-inside-avoid rounded-xl overflow-hidden border border-border/40 hover:shadow-lg transition-all bg-card">
+                            <div className="relative">
+                                <div className="absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                        onClick={async () => {
+                                            try {
+                                                const res = await fetch(item.image_url!);
+                                                const blob = await res.blob();
+                                                const url = window.URL.createObjectURL(blob);
+                                                const a = document.createElement('a');
+                                                a.href = url;
+                                                a.download = `image-${item.id}.jpg`;
+                                                a.click();
+                                            } catch { window.open(item.image_url, '_blank') }
+                                        }}
+                                        className="p-2 bg-background/80 backdrop-blur-sm rounded-lg text-muted-foreground hover:text-primary transition-all"
+                                    >
+                                        <Download className="h-4 w-4" />
+                                    </button>
+                                    <button onClick={() => onDelete(item.id)} className="p-2 bg-background/80 backdrop-blur-sm rounded-lg text-muted-foreground hover:text-destructive transition-all">
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
+                                </div>
+                                <img src={item.image_url!} alt="" className="w-full h-auto block transform group-hover:scale-[1.02] transition-transform duration-500" />
                             </div>
-                            <img src={item.image_url!} alt="" className="w-full h-auto block transform group-hover:scale-[1.02] transition-transform duration-500" />
+
+                            {item.palette && item.palette.length > 0 && (
+                                <div className="p-3 border-t border-border/40 bg-muted/5">
+                                    <SectionPalette colors={item.palette} />
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
             ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
                     {items.map(item => (
-                        <div key={item.id} className="group relative aspect-square bg-muted/20 border border-border/20 rounded-xl overflow-hidden transition-all">
-                            <img src={item.image_url!} alt="" className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity">
-                                <button onClick={() => onDelete(item.id)} className="p-2 text-muted-foreground hover:text-destructive">
-                                    <Trash2 className="h-4 w-4" />
-                                </button>
-                                <button
-                                    onClick={() => window.open(item.image_url, '_blank')}
-                                    className="p-2 text-muted-foreground hover:text-foreground"
-                                >
-                                    <ExternalLink className="h-4 w-4" />
-                                </button>
+                        <div key={item.id} className="group flex flex-col bg-card border border-border/20 rounded-xl overflow-hidden transition-all">
+                            <div className="relative aspect-square overflow-hidden bg-muted/20">
+                                <img src={item.image_url!} alt="" className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 transition-opacity">
+                                    <button onClick={() => onDelete(item.id)} className="p-2 text-muted-foreground hover:text-destructive">
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => window.open(item.image_url, '_blank')}
+                                        className="p-2 text-muted-foreground hover:text-foreground"
+                                    >
+                                        <ExternalLink className="h-4 w-4" />
+                                    </button>
+                                </div>
                             </div>
+                            {item.palette && item.palette.length > 0 && (
+                                <div className="p-2 border-t border-border/40 bg-muted/5">
+                                    <SectionPalette colors={item.palette.slice(0, 4)} />
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -324,17 +339,17 @@ function SectionPalette({ colors }: { colors: string[] }) {
     };
 
     return (
-        <div className="flex items-center -space-x-2">
+        <div className="flex items-center gap-2">
             {colors.map((hex, i) => (
                 <button
                     key={`${hex}-${i}`}
                     onClick={() => handleCopy(hex)}
-                    className="group/swatch relative h-5 w-5 rounded-full border-2 border-background shadow-sm ring-1 ring-border/5 transition-all hover:scale-125 hover:z-30 cursor-pointer outline-none focus:ring-primary/40"
-                    style={{ backgroundColor: hex, zIndex: 10 - i }}
+                    className="group/swatch relative h-4 w-4 rounded-full border border-border/20 shadow-sm transition-all hover:scale-110 cursor-pointer outline-none focus:ring-1 focus:ring-primary/40"
+                    style={{ backgroundColor: hex }}
                     title={hex}
                 >
                     {copiedColor === hex && (
-                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-foreground text-background text-[8px] font-bold px-1.5 py-0.5 rounded shadow-lg whitespace-nowrap animate-in fade-in zoom-in duration-200">
+                        <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-foreground text-background text-[7px] font-bold px-1 py-0.5 rounded shadow-lg whitespace-nowrap z-50 animate-in fade-in zoom-in duration-200">
                             COPIED
                         </div>
                     )}

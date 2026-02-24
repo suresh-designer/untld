@@ -46,7 +46,7 @@ export interface Item {
   image_url?: string;
   color_hex?: string;
   color_name?: string;
-  colors?: string[]; // Extracted palette for images
+  palette?: string[]; // Extracted palette for images
   folderId: string;
-  created_at?: string;
+  created_at?: string | number;
 }

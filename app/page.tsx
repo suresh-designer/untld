@@ -174,7 +174,7 @@ export default function Home() {
               view={imagesView}
               onViewChange={setImagesView}
               hideHeading={false}
-              palette={Array.from(new Set(grouped.image.flatMap(img => img.colors || []))).slice(0, 5)}
+              palette={Array.from(new Set(grouped.image.flatMap(img => img.palette || []))).slice(0, 5)}
             />
           )}
         </div>

@@ -68,21 +68,10 @@ export function UnifiedInput({ onAdd }: UnifiedInputProps) {
 
                 // Image Check
                 if (isImageUrl(url)) {
-                    let extractedPalette: string[] = [];
-
-                    // Extract Palette
-                    try {
-                        const { extractPaletteFromImage } = await import('@/lib/color-utils');
-                        extractedPalette = await extractPaletteFromImage(url);
-                    } catch (err) {
-                        console.error('Color extraction failed:', err);
-                    }
-
                     await onAdd({
                         type: 'image',
                         content: url,
-                        image_url: url,
-                        colors: extractedPalette
+                        image_url: url
                     });
                 } else {
                     // Fetch Metadata for Link

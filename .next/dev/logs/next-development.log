@@ -1,4 +1,4 @@
-[00:00:01.100] Server  LOG     ✓ Ready in 899ms
-[00:00:02.176] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:20.183] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:27.032] Browser WARN    Failed to load image for color extraction: https://i.pinimg.com/1200x/2e/41/5b/2e415b347597090150b20ea744fe83e9.jpg
+[00:00:01.059] Server  LOG     ✓ Ready in 808ms
+[00:01:56.603] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:02:03.508] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:02:07.817] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold

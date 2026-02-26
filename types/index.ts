@@ -44,6 +44,7 @@ export interface Item {
   title?: string;
   favicon?: string;
   image_url?: string;
+  imageUrl?: string; // Support for camelCase mapping
   color_hex?: string;
   color_name?: string;
   palette?: string[]; // Extracted palette for images

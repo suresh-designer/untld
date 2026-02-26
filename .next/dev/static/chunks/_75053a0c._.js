@@ -334,12 +334,12 @@ function useItemStore() {
         const dbUpdates = {
             ...updates
         };
-        if (updates.folderId) {
+        // Map camelCase to snake_case for Supabase
+        if ('folderId' in updates) {
             dbUpdates.folder_id = updates.folderId;
             delete dbUpdates.folderId;
         }
-        // Specifically mapping for any other fields that might be camelCase
-        if (updates.imageUrl) {
+        if ('imageUrl' in updates) {
             dbUpdates.image_url = updates.imageUrl;
             delete dbUpdates.imageUrl;
         }

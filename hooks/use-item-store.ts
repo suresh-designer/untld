@@ -66,6 +66,23 @@ export function useItemStore() {
                         color: newFolder.color,
                         createdAt: newFolder.created_at ? new Date(newFolder.created_at).getTime() : Date.now()
                     }];
+
+                    // Notify of new signup
+                    try {
+                        const { data: { session } } = await supabase.auth.getSession();
+                        if (session?.user) {
+                            fetch('/api/notify-signup', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    email: session.user.email,
+                                    firstName: session.user.user_metadata?.full_name?.split(' ')[0] || session.user.user_metadata?.first_name || 'New User'
+                                })
+                            }).catch(err => console.error('Notification failed:', err));
+                        }
+                    } catch (e) {
+                        console.error('Failed to trigger signup notification:', e);
+                    }
                 } else if (folderError) {
                     console.error('Error creating default folder:', folderError);
                 }

@@ -636,3 +636,5 @@ It can also happen if the client has a browser extension installed which messes 
 [03:15:15.816] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
 [03:19:35.726] Server  LOG     ✓ Compiled in 723ms
 [03:20:35.176] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[03:37:01.063] Server  LOG     ✓ Compiled in 159ms
+[03:44:21.262] Server  ERROR   ⨯ Error: Missing API key. Pass it to the constructor `new Resend("re_123")`

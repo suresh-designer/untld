@@ -1,4 +1,61 @@
-[00:00:01.059] Server  LOG     ✓ Ready in 808ms
-[00:01:56.603] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:03.508] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:07.817] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:02.350] Server  LOG     ✓ Ready in 1915ms
+[00:00:12.056] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:15.152] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:00:15.308] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:00:15.308] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:00:23.547] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:24.243] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:00:24.243] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:00:24.399] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:00:33.010] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:33.655] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:00:33.655] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:00:33.655] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:03:03.717] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:03:05.140] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:03:05.140] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:03:05.140] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:08:51.892] Server  LOG     ✓ Compiled in 817ms
+[00:08:53.331] Browser ERROR   Error fetching items: {"code":"42703","details":null,"hint":null,"message":"column moodboard_items.user_id does not exist"}
+[00:08:53.331] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:08:53.331] Browser ERROR   Error fetching items: {"code":"42703","details":null,"hint":null,"message":"column moodboard_items.user_id does not exist"}
+[00:08:53.331] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:09:31.155] Browser ERROR   Error fetching items: {"code":"42703","details":null,"hint":null,"message":"column moodboard_items.user_id does not exist"}
+[00:09:31.274] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:09:33.141] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:09:34.207] Browser ERROR   Error fetching items: {"code":"42703","details":null,"hint":null,"message":"column moodboard_items.user_id does not exist"}
+[00:09:34.207] Browser ERROR   Error fetching items: {"code":"42703","details":null,"hint":null,"message":"column moodboard_items.user_id does not exist"}
+[00:09:34.207] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:09:34.207] Browser ERROR   Error fetching items: {"code":"42703","details":null,"hint":null,"message":"column moodboard_items.user_id does not exist"}
+[00:09:34.207] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:09:34.207] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:09:38.195] Browser ERROR   Error adding folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:09:41.482] Browser ERROR   Supabase error adding item: {"code":"PGRST204","details":null,"hint":null,"message":"Could not find the 'user_id' column of 'moodboard_items' in the schema cache"}
+[00:09:43.135] Browser ERROR   Supabase error adding item: {"code":"PGRST204","details":null,"hint":null,"message":"Could not find the 'user_id' column of 'moodboard_items' in the schema cache"}
+[00:11:19.129] Browser ERROR   Error fetching items: {"code":"42703","details":null,"hint":null,"message":"column moodboard_items.user_id does not exist"}
+[00:11:19.269] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:15:53.239] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:15:54.433] Browser ERROR   Error fetching items: {"code":"42703","details":null,"hint":null,"message":"column moodboard_items.user_id does not exist"}
+[00:15:54.704] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:15:54.705] Browser ERROR   Error fetching items: {"code":"42703","details":null,"hint":null,"message":"column moodboard_items.user_id does not exist"}
+[00:15:54.705] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:41:10.301] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:41:11.090] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:41:11.371] Browser ERROR   Error creating default folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:41:15.205] Browser ERROR   Error adding folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:41:18.844] Browser ERROR   Error adding folder: {"code":"23502","details":null,"hint":null,"message":"null value in column \"id\" of relation \"folders\" violates not-null constraint"}
+[00:45:43.307] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:45:51.125] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:47:38.558] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:47:59.508] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:53:43.129] Server  LOG     ✓ Compiled in 852ms
+[00:53:45.049] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:54:18.794] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:54:29.290] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:54:37.401] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:58:44.332] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:59:15.773] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:01:30.496] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:04:47.416] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:05:24.791] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:05:59.271] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold

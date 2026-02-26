@@ -35,7 +35,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 const FOLDERS_TABLE = 'folders';
 const ITEMS_TABLE = 'moodboard_items';
-const DEFAULT_FOLDER_ID = '00000000-0000-0000-0000-000000000000';
+const DEFAULT_FOLDER_NAME = 'Bookmarks';
 const FOLDER_COLORS = [
     '#22c55e',
     '#3b82f6',
@@ -48,42 +48,56 @@ const FOLDER_COLORS = [
 ];
 const getRandomColor = ()=>FOLDER_COLORS[Math.floor(Math.random() * FOLDER_COLORS.length)];
 const initialState = {
-    folders: [
-        {
-            id: DEFAULT_FOLDER_ID,
-            name: 'Moodboard',
-            color: '#22c55e',
-            createdAt: Date.now()
-        }
-    ],
-    items: []
+    folders: [],
+    items: [],
+    user: null
 };
 function useItemStore() {
     _s();
     const [state, setState] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(initialState);
     const [isLoaded, setIsLoaded] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const fetchData = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "useItemStore.useCallback[fetchData]": async ()=>{
+        "useItemStore.useCallback[fetchData]": async (userId)=>{
             try {
                 const [foldersRes, itemsRes] = await Promise.all([
-                    __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(FOLDERS_TABLE).select('*').order('created_at', {
+                    __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(FOLDERS_TABLE).select('*').eq('user_id', userId).order('created_at', {
                         ascending: true
                     }),
-                    __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(ITEMS_TABLE).select('*').order('created_at', {
+                    __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(ITEMS_TABLE).select('*').eq('user_id', userId).order('created_at', {
                         ascending: false
                     })
                 ]);
                 if (foldersRes.error) console.error('Error fetching folders:', foldersRes.error);
                 if (itemsRes.error) console.error('Error fetching items:', itemsRes.error);
-                const loadedFolders = (foldersRes.data || []).map({
+                let loadedFolders = (foldersRes.data || []).filter(Boolean).map({
                     "useItemStore.useCallback[fetchData].loadedFolders": (f)=>({
                             id: f.id,
                             name: f.name,
                             color: f.color,
-                            createdAt: new Date(f.created_at).getTime()
+                            createdAt: f.created_at ? new Date(f.created_at).getTime() : Date.now()
                         })
                 }["useItemStore.useCallback[fetchData].loadedFolders"]);
-                const loadedItems = (itemsRes.data || []).map({
+                // Ensure default folder exists if empty for this user
+                if (loadedFolders.length === 0) {
+                    const { data: newFolder, error: folderError } = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(FOLDERS_TABLE).insert({
+                        name: DEFAULT_FOLDER_NAME,
+                        color: getRandomColor(),
+                        user_id: userId
+                    }).select().single();
+                    if (newFolder) {
+                        loadedFolders = [
+                            {
+                                id: newFolder.id,
+                                name: newFolder.name,
+                                color: newFolder.color,
+                                createdAt: newFolder.created_at ? new Date(newFolder.created_at).getTime() : Date.now()
+                            }
+                        ];
+                    } else if (folderError) {
+                        console.error('Error creating default folder:', folderError);
+                    }
+                }
+                const loadedItems = (itemsRes.data || []).filter(Boolean).map({
                     "useItemStore.useCallback[fetchData].loadedItems": (i)=>({
                             id: i.id,
                             type: i.type,
@@ -95,24 +109,16 @@ function useItemStore() {
                             color_name: i.color_name,
                             palette: i.palette,
                             folderId: i.folder_id,
-                            created_at: new Date(i.created_at).getTime()
+                            created_at: i.created_at ? new Date(i.created_at).getTime() : Date.now()
                         })
                 }["useItemStore.useCallback[fetchData].loadedItems"]);
-                // Ensure default folder exists if empty
-                if (loadedFolders.length === 0) {
-                    const defaultFolder = initialState.folders[0];
-                    await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(FOLDERS_TABLE).insert({
-                        id: defaultFolder.id,
-                        name: defaultFolder.name,
-                        color: defaultFolder.color,
-                        created_at: new Date(defaultFolder.createdAt).toISOString()
-                    });
-                    loadedFolders.push(defaultFolder);
-                }
                 setState({
-                    folders: loadedFolders,
-                    items: loadedItems
-                });
+                    "useItemStore.useCallback[fetchData]": (prev)=>({
+                            ...prev,
+                            folders: loadedFolders,
+                            items: loadedItems
+                        })
+                }["useItemStore.useCallback[fetchData]"]);
             } catch (e) {
                 console.error('Supabase fetch failed:', e);
             } finally{
@@ -122,34 +128,73 @@ function useItemStore() {
     }["useItemStore.useCallback[fetchData]"], []);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "useItemStore.useEffect": ()=>{
-            fetchData();
+            const getSession = {
+                "useItemStore.useEffect.getSession": async ()=>{
+                    const { data: { session } } = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].auth.getSession();
+                    if (session?.user) {
+                        setState({
+                            "useItemStore.useEffect.getSession": (prev)=>({
+                                    ...prev,
+                                    user: session.user
+                                })
+                        }["useItemStore.useEffect.getSession"]);
+                        fetchData(session.user.id);
+                    } else {
+                        setIsLoaded(true);
+                    }
+                }
+            }["useItemStore.useEffect.getSession"];
+            getSession();
+            const { data: { subscription } } = __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].auth.onAuthStateChange({
+                "useItemStore.useEffect": (_event, session)=>{
+                    if (session?.user) {
+                        setState({
+                            "useItemStore.useEffect": (prev)=>({
+                                    ...prev,
+                                    user: session.user
+                                })
+                        }["useItemStore.useEffect"]);
+                        fetchData(session.user.id);
+                    } else {
+                        setState(initialState);
+                    }
+                }
+            }["useItemStore.useEffect"]);
+            return ({
+                "useItemStore.useEffect": ()=>subscription.unsubscribe()
+            })["useItemStore.useEffect"];
         }
     }["useItemStore.useEffect"], [
         fetchData
     ]);
     const addFolder = async (name, color)=>{
-        const newFolder = {
-            id: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$uuid$2f$dist$2f$v4$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__v4$3e$__["v4"])(),
+        if (!state.user) return null;
+        const { data: newFolder, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(FOLDERS_TABLE).insert({
             name,
             color: color || getRandomColor(),
-            createdAt: Date.now()
+            user_id: state.user.id
+        }).select().single();
+        if (error) {
+            console.error('Error adding folder:', error);
+            return null;
+        }
+        const folderObj = {
+            id: newFolder.id,
+            name: newFolder.name,
+            color: newFolder.color,
+            createdAt: new Date(newFolder.created_at).getTime()
         };
         setState((prev)=>({
                 ...prev,
                 folders: [
                     ...prev.folders,
-                    newFolder
+                    folderObj
                 ]
             }));
-        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(FOLDERS_TABLE).insert({
-            id: newFolder.id,
-            name: newFolder.name,
-            color: newFolder.color,
-            created_at: new Date(newFolder.createdAt).toISOString()
-        });
-        return newFolder;
+        return folderObj;
     };
     const renameFolder = async (id, name)=>{
+        if (!state.user) return;
         setState((prev)=>({
                 ...prev,
                 folders: prev.folders.map((f)=>f.id === id ? {
@@ -159,9 +204,10 @@ function useItemStore() {
             }));
         await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(FOLDERS_TABLE).update({
             name
-        }).eq('id', id);
+        }).eq('id', id).eq('user_id', state.user.id);
     };
     const updateFolderColor = async (id, color)=>{
+        if (!state.user) return;
         setState((prev)=>({
                 ...prev,
                 folders: prev.folders.map((f)=>f.id === id ? {
@@ -171,67 +217,113 @@ function useItemStore() {
             }));
         await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(FOLDERS_TABLE).update({
             color
-        }).eq('id', id);
+        }).eq('id', id).eq('user_id', state.user.id);
     };
     const deleteFolder = async (id)=>{
-        if (id === DEFAULT_FOLDER_ID) return;
+        if (!state.user || state.folders.length <= 1) return; // Prevent deleting the last folder
+        const remainingFolders = state.folders.filter((f)=>f.id !== id);
+        const fallbackFolderId = remainingFolders[0].id;
         setState((prev)=>({
                 ...prev,
-                folders: prev.folders.filter((f)=>f.id !== id),
+                folders: remainingFolders,
                 items: prev.items.map((i)=>i.folderId === id ? {
                         ...i,
-                        folderId: DEFAULT_FOLDER_ID
+                        folderId: fallbackFolderId
                     } : i)
             }));
         await Promise.all([
             __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(ITEMS_TABLE).update({
-                folder_id: DEFAULT_FOLDER_ID
-            }).eq('folder_id', id),
-            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(FOLDERS_TABLE).delete().eq('id', id)
+                folder_id: fallbackFolderId
+            }).eq('folder_id', id).eq('user_id', state.user.id),
+            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(FOLDERS_TABLE).delete().eq('id', id).eq('user_id', state.user.id)
         ]);
     };
     const addItem = async (item)=>{
+        if (!state.user) {
+            console.error('Cant add item: No user session');
+            return null;
+        }
         if (state.items.length >= 100) {
             throw new Error('Limit reached: Maximum 100 blocks allowed.');
         }
-        let palette = undefined;
-        if (item.type === 'image' && item.image_url) {
-            const { extractPaletteFromImage } = await __turbopack_context__.A("[project]/lib/color-utils.ts [app-client] (ecmascript, async loader)");
-            try {
-                palette = await extractPaletteFromImage(item.image_url);
-            } catch (e) {
-                console.error('Failed to extract palette', e);
-            }
-        }
-        const newItem = {
+        const tempId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$uuid$2f$dist$2f$v4$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__v4$3e$__["v4"])();
+        const newItemOptimistic = {
             ...item,
-            id: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$uuid$2f$dist$2f$v4$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__v4$3e$__["v4"])(),
-            palette,
+            id: tempId,
             created_at: Date.now()
         };
+        // UI optimistic update
         setState((prev)=>({
                 ...prev,
                 items: [
-                    newItem,
+                    newItemOptimistic,
                     ...prev.items
                 ]
             }));
-        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(ITEMS_TABLE).insert({
-            id: newItem.id,
-            type: newItem.type,
-            content: newItem.content,
-            title: newItem.title,
-            favicon: newItem.favicon,
-            image_url: newItem.image_url,
-            color_hex: newItem.color_hex,
-            color_name: newItem.color_name,
-            palette: newItem.palette,
-            folder_id: newItem.folderId,
-            created_at: new Date(newItem.created_at).toISOString()
-        });
-        return newItem;
+        try {
+            let palette = undefined;
+            if (item.type === 'image' && item.image_url) {
+                const { extractPaletteFromImage } = await __turbopack_context__.A("[project]/lib/color-utils.ts [app-client] (ecmascript, async loader)");
+                try {
+                    palette = await extractPaletteFromImage(item.image_url);
+                } catch (e) {
+                    console.error('Failed to extract palette', e);
+                }
+            }
+            // Ensure folder_id is a valid UUID or just pass it as is if it's there
+            const folderId = item.folderId || null;
+            const { data: newItem, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(ITEMS_TABLE).insert({
+                user_id: state.user.id,
+                type: item.type,
+                content: item.content,
+                title: item.title,
+                favicon: item.favicon,
+                image_url: item.image_url,
+                color_hex: item.color_hex,
+                color_name: item.color_name,
+                palette: palette || item.palette,
+                folder_id: folderId
+            }).select().single();
+            if (error) {
+                console.error('Supabase error adding item:', error);
+                // Rollback optimistic update
+                setState((prev)=>({
+                        ...prev,
+                        items: prev.items.filter((i)=>i.id !== tempId)
+                    }));
+                return null;
+            }
+            const itemObj = {
+                id: newItem.id,
+                type: newItem.type,
+                content: newItem.content,
+                title: newItem.title,
+                favicon: newItem.favicon,
+                image_url: newItem.image_url,
+                color_hex: newItem.color_hex,
+                color_name: newItem.color_name,
+                palette: newItem.palette,
+                folderId: newItem.folder_id,
+                created_at: new Date(newItem.created_at).getTime()
+            };
+            // Replace temp item with real one
+            setState((prev)=>({
+                    ...prev,
+                    items: prev.items.map((i)=>i.id === tempId ? itemObj : i)
+                }));
+            return itemObj;
+        } catch (e) {
+            console.error('Exception adding item:', e);
+            setState((prev)=>({
+                    ...prev,
+                    items: prev.items.filter((i)=>i.id !== tempId)
+                }));
+            return null;
+        }
     };
     const updateItem = async (id, updates)=>{
+        if (!state.user) return;
+        const previousItems = state.items;
         setState((prev)=>({
                 ...prev,
                 items: prev.items.map((i)=>i.id === id ? {
@@ -246,14 +338,35 @@ function useItemStore() {
             dbUpdates.folder_id = updates.folderId;
             delete dbUpdates.folderId;
         }
-        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(ITEMS_TABLE).update(dbUpdates).eq('id', id);
+        // Specifically mapping for any other fields that might be camelCase
+        if (updates.imageUrl) {
+            dbUpdates.image_url = updates.imageUrl;
+            delete dbUpdates.imageUrl;
+        }
+        const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(ITEMS_TABLE).update(dbUpdates).eq('id', id).eq('user_id', state.user.id);
+        if (error) {
+            console.error('Error updating item:', error);
+            setState((prev)=>({
+                    ...prev,
+                    items: previousItems
+                }));
+        }
     };
     const deleteItem = async (id)=>{
+        if (!state.user) return;
+        const previousItems = state.items;
         setState((prev)=>({
                 ...prev,
                 items: prev.items.filter((i)=>i.id !== id)
             }));
-        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(ITEMS_TABLE).delete().eq('id', id);
+        const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from(ITEMS_TABLE).delete().eq('id', id).eq('user_id', state.user.id);
+        if (error) {
+            console.error('Error deleting item:', error);
+            setState((prev)=>({
+                    ...prev,
+                    items: previousItems
+                }));
+        }
     };
     const getGroupedItems = (folderId)=>{
         const folderItems = state.items.filter((i)=>i.folderId === folderId);
@@ -263,6 +376,10 @@ function useItemStore() {
             link: folderItems.filter((i)=>i.type === 'link'),
             image: folderItems.filter((i)=>i.type === 'image')
         };
+    };
+    const logout = async ()=>{
+        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].auth.signOut();
+        setState(initialState);
     };
     return {
         ...state,
@@ -275,7 +392,8 @@ function useItemStore() {
         updateItem,
         deleteItem,
         getGroupedItems,
-        DEFAULT_FOLDER_ID,
+        logout,
+        DEFAULT_FOLDER_ID: state.folders[0]?.id,
         totalCount: state.items.length
     };
 }
@@ -477,13 +595,15 @@ function UnifiedInput({ onAdd }) {
         // 1. Color Check
         if (isColor(trimmed)) {
             const colorName = await fetchColorName(trimmed);
-            await onAdd({
+            const success = await onAdd({
                 type: 'color',
                 content: trimmed,
                 color_hex: trimmed,
                 color_name: colorName || 'Unnamed Color'
             });
-            setValue('');
+            if (success) {
+                setValue('');
+            }
             setIsLoading(false);
             return;
         }
@@ -497,24 +617,29 @@ function UnifiedInput({ onAdd }) {
                 new URL(url); // Validate URL
                 // Image Check
                 if (isImageUrl(url)) {
-                    await onAdd({
+                    const success = await onAdd({
                         type: 'image',
                         content: url,
                         image_url: url
                     });
+                    if (success) {
+                        setValue('');
+                    }
                 } else {
                     // Fetch Metadata for Link
                     const res = await fetch(`/api/metadata?url=${encodeURIComponent(url)}`);
                     const metadata = await res.json();
-                    await onAdd({
+                    const success = await onAdd({
                         type: 'link',
                         content: url,
                         title: metadata.title || url,
                         favicon: metadata.favicon || '',
                         image_url: metadata.image || ''
                     });
+                    if (success) {
+                        setValue('');
+                    }
                 }
-                setValue('');
                 setIsLoading(false);
                 return;
             } catch  {
@@ -522,11 +647,13 @@ function UnifiedInput({ onAdd }) {
             }
         }
         // 3. Default: Text
-        await onAdd({
+        const success = await onAdd({
             type: 'text',
             content: trimmed
         });
-        setValue('');
+        if (success) {
+            setValue('');
+        }
         setIsLoading(false);
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -542,7 +669,7 @@ function UnifiedInput({ onAdd }) {
                 disabled: isLoading
             }, void 0, false, {
                 fileName: "[project]/components/unified-input.tsx",
-                lineNumber: 109,
+                lineNumber: 118,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -551,18 +678,18 @@ function UnifiedInput({ onAdd }) {
                     className: "h-5 w-5 animate-spin"
                 }, void 0, false, {
                     fileName: "[project]/components/unified-input.tsx",
-                    lineNumber: 118,
+                    lineNumber: 127,
                     columnNumber: 30
                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__["Plus"], {
                     className: "h-5 w-5"
                 }, void 0, false, {
                     fileName: "[project]/components/unified-input.tsx",
-                    lineNumber: 118,
+                    lineNumber: 127,
                     columnNumber: 77
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/unified-input.tsx",
-                lineNumber: 117,
+                lineNumber: 126,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -575,25 +702,25 @@ function UnifiedInput({ onAdd }) {
                             children: "⏎"
                         }, void 0, false, {
                             fileName: "[project]/components/unified-input.tsx",
-                            lineNumber: 122,
+                            lineNumber: 131,
                             columnNumber: 21
                         }, this),
                         " ENTER"
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/unified-input.tsx",
-                    lineNumber: 121,
+                    lineNumber: 130,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/unified-input.tsx",
-                lineNumber: 120,
+                lineNumber: 129,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/unified-input.tsx",
-        lineNumber: 108,
+        lineNumber: 117,
         columnNumber: 9
     }, this);
 }
@@ -2443,6 +2570,9 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$folder$2d$drop
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$moodboard$2d$sections$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/moodboard-sections.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/utils.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/skeleton.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/dropdown-menu.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$log$2d$out$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__LogOut$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/log-out.js [app-client] (ecmascript) <export default as LogOut>");
 ;
 var _s = __turbopack_context__.k.signature();
 'use client';
@@ -2454,18 +2584,43 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+;
+;
+;
 function Home() {
     _s();
-    const { folders, items, isLoaded, addFolder, renameFolder, updateFolderColor, deleteFolder, addItem, updateItem, deleteItem, getGroupedItems, DEFAULT_FOLDER_ID, totalCount } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$item$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useItemStore"])();
+    const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
+    const { folders, items, user, isLoaded, addFolder, renameFolder, updateFolderColor, deleteFolder, addItem, updateItem, deleteItem, getGroupedItems, logout, DEFAULT_FOLDER_ID, totalCount } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$item$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useItemStore"])();
     const [activeFolderId, setActiveFolderId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(DEFAULT_FOLDER_ID);
     const [linksView, setLinksView] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('grid');
     const [imagesView, setImagesView] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('grid');
+    const [activeFilter, setActiveFilter] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('all');
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "Home.useEffect": ()=>{
+            if (isLoaded && !user) {
+                router.push('/login');
+            }
+        }
+    }["Home.useEffect"], [
+        isLoaded,
+        user,
+        router
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "Home.useEffect": ()=>{
+            if (DEFAULT_FOLDER_ID && !activeFolderId) {
+                setActiveFolderId(DEFAULT_FOLDER_ID);
+            }
+        }
+    }["Home.useEffect"], [
+        DEFAULT_FOLDER_ID,
+        activeFolderId
+    ]);
     // If the active folder was deleted, switch to default
-    if (isLoaded && activeFolderId !== DEFAULT_FOLDER_ID && !folders.find((f)=>f.id === activeFolderId)) {
+    if (isLoaded && user && activeFolderId !== DEFAULT_FOLDER_ID && !folders.find((f)=>f.id === activeFolderId)) {
         setActiveFolderId(DEFAULT_FOLDER_ID);
     }
-    const grouped = getGroupedItems(activeFolderId);
-    const [activeFilter, setActiveFilter] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('all');
+    const grouped = getGroupedItems(activeFolderId || DEFAULT_FOLDER_ID || '');
     const filters = [
         {
             id: 'all',
@@ -2493,11 +2648,11 @@ function Home() {
             count: grouped.image.length
         }
     ];
-    if (!isLoaded) {
+    if (!isLoaded || !user) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "min-h-screen bg-background p-8",
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "max-w-6xl mx-auto space-y-12",
+                className: "max-w-7xl mx-auto space-y-12",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "flex justify-between items-center",
@@ -2506,64 +2661,89 @@ function Home() {
                                 className: "h-8 w-32"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 59,
+                                lineNumber: 82,
                                 columnNumber: 13
                             }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Skeleton"], {
-                                className: "h-8 w-8 rounded-full"
-                            }, void 0, false, {
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex gap-4",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Skeleton"], {
+                                        className: "h-8 w-24 rounded-full"
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/page.tsx",
+                                        lineNumber: 84,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Skeleton"], {
+                                        className: "h-8 w-8 rounded-full"
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/page.tsx",
+                                        lineNumber: 85,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 60,
+                                lineNumber: 83,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 58,
+                        lineNumber: 81,
                         columnNumber: 11
                     }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Skeleton"], {
-                        className: "h-20 w-full rounded-2xl"
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "max-w-2xl mx-auto",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Skeleton"], {
+                            className: "h-20 w-full rounded-2xl"
+                        }, void 0, false, {
+                            fileName: "[project]/app/page.tsx",
+                            lineNumber: 89,
+                            columnNumber: 13
+                        }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 62,
+                        lineNumber: 88,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "space-y-8",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Skeleton"], {
-                                className: "h-40 w-full rounded-xl"
+                                className: "h-64 w-full rounded-xl"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 64,
+                                lineNumber: 92,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Skeleton"], {
-                                className: "h-40 w-full rounded-xl"
+                                className: "h-64 w-full rounded-xl"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 65,
+                                lineNumber: 93,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 63,
+                        lineNumber: 91,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 57,
+                lineNumber: 80,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/page.tsx",
-            lineNumber: 56,
+            lineNumber: 79,
             columnNumber: 7
         }, this);
     }
+    const userInitial = user.user_metadata?.full_name?.charAt(0) || user.email?.charAt(0) || '?';
+    const userAvatar = user.user_metadata?.avatar_url;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "min-h-screen text-foreground pb-32",
         children: [
@@ -2580,41 +2760,41 @@ function Home() {
                                     children: "Untld"
                                 }, void 0, false, {
                                     fileName: "[project]/app/page.tsx",
-                                    lineNumber: 78,
+                                    lineNumber: 109,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$folder$2d$dropdown$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FolderDropdown"], {
                                     folders: folders,
-                                    activeFolderId: activeFolderId,
+                                    activeFolderId: activeFolderId || DEFAULT_FOLDER_ID || '',
                                     onSelectFolder: setActiveFolderId,
                                     onAddFolder: addFolder,
                                     onRenameFolder: renameFolder,
                                     onDeleteFolder: deleteFolder,
                                     onUpdateColor: updateFolderColor,
-                                    defaultFolderId: DEFAULT_FOLDER_ID
+                                    defaultFolderId: DEFAULT_FOLDER_ID || ''
                                 }, void 0, false, {
                                     fileName: "[project]/app/page.tsx",
-                                    lineNumber: 79,
+                                    lineNumber: 110,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/page.tsx",
-                            lineNumber: 77,
+                            lineNumber: 108,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "flex items-center gap-6",
+                            className: "flex items-center gap-4",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "flex items-baseline gap-1.5 px-3 py-1.5 bg-secondary/50 rounded-full border border-border/40",
+                                    className: "hidden md:flex items-baseline gap-1.5 px-3 py-1.5 bg-secondary/50 rounded-full border border-border/40",
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                             className: "text-[10px] font-bold tracking-wider text-muted-foreground uppercase",
                                             children: "Blocks"
                                         }, void 0, false, {
                                             fileName: "[project]/app/page.tsx",
-                                            lineNumber: 92,
+                                            lineNumber: 123,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2625,35 +2805,164 @@ function Home() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/page.tsx",
-                                            lineNumber: 93,
+                                            lineNumber: 124,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/page.tsx",
-                                    lineNumber: 91,
+                                    lineNumber: 122,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$theme$2d$toggle$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ThemeToggle"], {}, void 0, false, {
                                     fileName: "[project]/app/page.tsx",
-                                    lineNumber: 100,
+                                    lineNumber: 132,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "h-8 w-px bg-border/40 mx-1"
+                                }, void 0, false, {
+                                    fileName: "[project]/app/page.tsx",
+                                    lineNumber: 134,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenu"], {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuTrigger"], {
+                                            className: "focus:outline-none",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-secondary/50 transition-colors group",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "text-[11px] font-bold tracking-tight hidden sm:block",
+                                                        children: user.user_metadata?.full_name || user.email?.split('@')[0]
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/page.tsx",
+                                                        lineNumber: 139,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "w-8 h-8 rounded-full bg-secondary border border-border/40 overflow-hidden flex items-center justify-center shrink-0",
+                                                        children: userAvatar ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                                            src: userAvatar,
+                                                            alt: "Profile",
+                                                            className: "w-full h-full object-cover"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/page.tsx",
+                                                            lineNumber: 144,
+                                                            columnNumber: 23
+                                                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "text-[10px] font-bold uppercase",
+                                                            children: userInitial
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/page.tsx",
+                                                            lineNumber: 146,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/page.tsx",
+                                                        lineNumber: 142,
+                                                        columnNumber: 19
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/page.tsx",
+                                                lineNumber: 138,
+                                                columnNumber: 17
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/page.tsx",
+                                            lineNumber: 137,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
+                                            align: "end",
+                                            className: "w-48 p-2 rounded-2xl",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "px-2 py-2 mb-1",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                            className: "text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5",
+                                                            children: "Signed in as"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/page.tsx",
+                                                            lineNumber: 153,
+                                                            columnNumber: 19
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                            className: "text-[11px] font-medium truncate",
+                                                            children: user.email
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/page.tsx",
+                                                            lineNumber: 154,
+                                                            columnNumber: 19
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/app/page.tsx",
+                                                    lineNumber: 152,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "h-px bg-border/40 my-1 mx-1"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/page.tsx",
+                                                    lineNumber: 156,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
+                                                    onClick: logout,
+                                                    className: "rounded-xl text-destructive focus:text-destructive gap-2 cursor-pointer",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$log$2d$out$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__LogOut$3e$__["LogOut"], {
+                                                            className: "w-3.5 h-3.5"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/page.tsx",
+                                                            lineNumber: 158,
+                                                            columnNumber: 19
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "text-[11px] font-bold uppercase tracking-wider",
+                                                            children: "Logout"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/page.tsx",
+                                                            lineNumber: 159,
+                                                            columnNumber: 19
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/app/page.tsx",
+                                                    lineNumber: 157,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/page.tsx",
+                                            lineNumber: 151,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/page.tsx",
+                                    lineNumber: 136,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/page.tsx",
-                            lineNumber: 90,
+                            lineNumber: 121,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 76,
+                    lineNumber: 107,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 75,
+                lineNumber: 106,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -2665,11 +2974,11 @@ function Home() {
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$unified$2d$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["UnifiedInput"], {
                                 onAdd: (item)=>addItem({
                                         ...item,
-                                        folderId: activeFolderId
+                                        folderId: activeFolderId || DEFAULT_FOLDER_ID || ''
                                     })
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 108,
+                                lineNumber: 170,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2689,24 +2998,24 @@ function Home() {
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/page.tsx",
-                                                lineNumber: 123,
+                                                lineNumber: 185,
                                                 columnNumber: 32
                                             }, this)
                                         ]
                                     }, filter.id, true, {
                                         fileName: "[project]/app/page.tsx",
-                                        lineNumber: 113,
+                                        lineNumber: 175,
                                         columnNumber: 15
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 111,
+                                lineNumber: 173,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 107,
+                        lineNumber: 169,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2724,12 +3033,12 @@ function Home() {
                                             hideHeading: true
                                         }, void 0, false, {
                                             fileName: "[project]/app/page.tsx",
-                                            lineNumber: 138,
+                                            lineNumber: 200,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.tsx",
-                                        lineNumber: 137,
+                                        lineNumber: 199,
                                         columnNumber: 17
                                     }, this),
                                     (activeFilter === 'all' || activeFilter === 'color') && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2740,18 +3049,18 @@ function Home() {
                                             hideHeading: true
                                         }, void 0, false, {
                                             fileName: "[project]/app/page.tsx",
-                                            lineNumber: 148,
+                                            lineNumber: 210,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.tsx",
-                                        lineNumber: 147,
+                                        lineNumber: 209,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 133,
+                                lineNumber: 195,
                                 columnNumber: 13
                             }, this),
                             (activeFilter === 'all' || activeFilter === 'link') && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$moodboard$2d$sections$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LinksSection"], {
@@ -2762,7 +3071,7 @@ function Home() {
                                 hideHeading: true
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 160,
+                                lineNumber: 222,
                                 columnNumber: 13
                             }, this),
                             (activeFilter === 'all' || activeFilter === 'image') && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$moodboard$2d$sections$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ImagesSection"], {
@@ -2774,30 +3083,31 @@ function Home() {
                                 palette: Array.from(new Set(grouped.image.flatMap((img)=>img.palette || []))).slice(0, 5)
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 171,
+                                lineNumber: 233,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 130,
+                        lineNumber: 192,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 105,
+                lineNumber: 167,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/page.tsx",
-        lineNumber: 73,
+        lineNumber: 104,
         columnNumber: 5
     }, this);
 }
-_s(Home, "nWKeHPcGIaOgBk0fnnW8xdIZS1E=", false, function() {
+_s(Home, "iik2xhHWMmgrafO8WXG1jzAhtw0=", false, function() {
     return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
         __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$item$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useItemStore"]
     ];
 });

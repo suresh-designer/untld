@@ -45,13 +45,15 @@ export function UnifiedInput({ onAdd }: UnifiedInputProps) {
         // 1. Color Check
         if (isColor(trimmed)) {
             const colorName = await fetchColorName(trimmed);
-            await onAdd({
+            const success = await onAdd({
                 type: 'color',
                 content: trimmed,
                 color_hex: trimmed,
                 color_name: colorName || 'Unnamed Color'
             });
-            setValue('');
+            if (success) {
+                setValue('');
+            }
             setIsLoading(false);
             return;
         }
@@ -68,25 +70,30 @@ export function UnifiedInput({ onAdd }: UnifiedInputProps) {
 
                 // Image Check
                 if (isImageUrl(url)) {
-                    await onAdd({
+                    const success = await onAdd({
                         type: 'image',
                         content: url,
                         image_url: url
                     });
+                    if (success) {
+                        setValue('');
+                    }
                 } else {
                     // Fetch Metadata for Link
                     const res = await fetch(`/api/metadata?url=${encodeURIComponent(url)}`);
                     const metadata = await res.json();
 
-                    await onAdd({
+                    const success = await onAdd({
                         type: 'link',
                         content: url,
                         title: metadata.title || url,
                         favicon: metadata.favicon || '',
                         image_url: metadata.image || ''
                     });
+                    if (success) {
+                        setValue('');
+                    }
                 }
-                setValue('');
                 setIsLoading(false);
                 return;
             } catch {
@@ -95,12 +102,14 @@ export function UnifiedInput({ onAdd }: UnifiedInputProps) {
         }
 
         // 3. Default: Text
-        await onAdd({
+        const success = await onAdd({
             type: 'text',
             content: trimmed
         });
 
-        setValue('');
+        if (success) {
+            setValue('');
+        }
         setIsLoading(false);
     };
 

@@ -86,8 +86,8 @@ export default function LoginPage() {
             <div className="w-full max-w-sm space-y-8">
                 <div className="text-center space-y-2">
                     <h1 className="text-3xl font-bold tracking-tight py-2 bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">Untld</h1>
-                    <p className="text-muted-foreground text-[11px] uppercase tracking-[0.2em] font-medium">
-                        {authMode === 'forgot' ? 'Reset your password' : 'A minimal space for your bookmarks'}
+                    <p className="text-muted-foreground text-[11px] uppercase tracking-[0.2em] font-medium px-4">
+                        {authMode === 'forgot' ? 'Reset your password' : 'Paste anything. Build your design moodboard instantly.'}
                     </p>
                 </div>
 

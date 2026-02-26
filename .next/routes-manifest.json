@@ -47,6 +47,12 @@
       "namedRegex": "^/api/metadata(?:/)?$"
     },
     {
+      "page": "/api/proxy-image",
+      "regex": "^/api/proxy\\-image(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/proxy\\-image(?:/)?$"
+    },
+    {
       "page": "/favicon.ico",
       "regex": "^/favicon\\.ico(?:/)?$",
       "routeKeys": {},

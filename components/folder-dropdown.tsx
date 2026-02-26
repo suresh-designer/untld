@@ -46,6 +46,7 @@ interface FolderDropdownProps {
     onDeleteFolder: (id: string) => void;
     onUpdateColor: (id: string, color: string) => void;
     defaultFolderId: string;
+    onLimitReached?: (type: 'folders') => void;
 }
 
 export function FolderDropdown({
@@ -57,6 +58,7 @@ export function FolderDropdown({
     onDeleteFolder,
     onUpdateColor,
     defaultFolderId,
+    onLimitReached,
 }: FolderDropdownProps) {
     const [isAdding, setIsAdding] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
@@ -95,7 +97,7 @@ export function FolderDropdown({
                 }
             }}>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-9 px-3 gap-2 rounded-full bg-secondary hover:bg-secondary/80 text-foreground font-medium border border-border/50">
+                    <Button variant="ghost" className="h-9 px-3 gap-2 rounded-full bg-secondary hover:bg-secondary/80 text-foreground font-medium border border-border/50 cursor-pointer">
                         <span className="w-2 h-2 rounded-full" style={{ backgroundColor: activeFolder?.color }} />
                         {activeFolder?.name}
                         <ChevronDown className="h-4 w-4 opacity-50" />
@@ -139,14 +141,14 @@ export function FolderDropdown({
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2"
+                                        className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer"
                                         onClick={(e) => e.stopPropagation()}
                                     >
                                         <MoreVertical className="h-3 w-3" />
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-32 bg-popover border-border rounded-lg p-1 shadow-xl">
-                                    <DropdownMenuItem onClick={() => {
+                                    <DropdownMenuItem className="cursor-pointer" onClick={() => {
                                         setEditingId(folder.id);
                                         setEditName(folder.name);
                                     }}>
@@ -154,7 +156,7 @@ export function FolderDropdown({
                                     </DropdownMenuItem>
 
                                     <DropdownMenuSub>
-                                        <DropdownMenuSubTrigger>
+                                        <DropdownMenuSubTrigger className="cursor-pointer">
                                             <Palette className="h-3 w-3 mr-2" /> Color
                                         </DropdownMenuSubTrigger>
                                         <DropdownMenuSubContent className="p-1 bg-popover border-border min-w-[120px]">
@@ -163,7 +165,7 @@ export function FolderDropdown({
                                                     <button
                                                         key={c}
                                                         className={cn(
-                                                            "w-5 h-5 rounded-full border border-border/50 hover:scale-110 transition-transform",
+                                                            "w-5 h-5 rounded-full border border-border/50 hover:scale-110 transition-transform cursor-pointer",
                                                             folder.color === c && "ring-1 ring-ring"
                                                         )}
                                                         style={{ backgroundColor: c }}
@@ -177,7 +179,7 @@ export function FolderDropdown({
                                     <DropdownMenuSeparator className="bg-border/20" />
                                     <DropdownMenuItem
                                         disabled={folder.id === defaultFolderId}
-                                        className="text-destructive focus:text-destructive"
+                                        className="text-destructive focus:text-destructive cursor-pointer"
                                         onClick={() => onDeleteFolder(folder.id)}
                                     >
                                         <Trash2 className="h-3 w-3 mr-2" /> Delete
@@ -202,14 +204,23 @@ export function FolderDropdown({
                         </form>
                     ) : (
                         <DropdownMenuItem
-                            className="flex items-center gap-2 rounded-lg px-2 py-2 cursor-pointer text-muted-foreground hover:text-foreground hover:bg-background/20"
+                            className={cn(
+                                "flex items-center gap-2 rounded-lg px-2 py-2 cursor-pointer transition-colors",
+                                folders.length >= 3 ? "text-muted-foreground/60 hover:bg-background/10" : "text-muted-foreground hover:text-foreground hover:bg-background/20"
+                            )}
                             onClick={(e) => {
+                                if (folders.length >= 3) {
+                                    onLimitReached?.('folders');
+                                    return;
+                                }
                                 e.preventDefault();
                                 setIsAdding(true);
                             }}
                         >
                             <Plus className="h-4 w-4" />
-                            <span className="text-sm font-medium">Create Group</span>
+                            <span className="text-sm font-medium">
+                                {folders.length >= 3 ? "Limit Reached (3)" : "Create Group"}
+                            </span>
                         </DropdownMenuItem>
                     )}
                 </DropdownMenuContent>

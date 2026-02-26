@@ -1,16 +1,37 @@
-'use client';
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Loader2 } from 'lucide-react';
 import { ItemType } from '@/types';
+import { cn } from '@/lib/utils';
 
 interface UnifiedInputProps {
     onAdd: (item: any) => Promise<any>;
 }
 
+const HINTS = [
+    "You can paste anything",
+    "#EEEEE - example for color code",
+    "Link",
+    "Notes",
+    "Images",
+    "Make interesting content"
+];
+
 export function UnifiedInput({ onAdd }: UnifiedInputProps) {
     const [value, setValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [hintIndex, setHintIndex] = useState(0);
+    const [isTransitioning, setIsTransitioning] = useState(false);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setIsTransitioning(true);
+            setTimeout(() => {
+                setHintIndex((prev) => (prev + 1) % HINTS.length);
+                setIsTransitioning(false);
+            }, 500);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
 
     const isColor = (str: string) => /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(str);
 
@@ -58,7 +79,22 @@ export function UnifiedInput({ onAdd }: UnifiedInputProps) {
             return;
         }
 
-        // 2. URL Check
+        // 2. Font Check (Example: "Font: Roboto")
+        if (trimmed.toLowerCase().startsWith('font:')) {
+            const fontName = trimmed.substring(5).trim();
+            const success = await onAdd({
+                type: 'font',
+                content: fontName,
+                title: fontName
+            });
+            if (success) {
+                setValue('');
+            }
+            setIsLoading(false);
+            return;
+        }
+
+        // 3. URL Check
         let url = trimmed;
         if (trimmed.startsWith('www.') || (trimmed.includes('.') && !trimmed.includes(' '))) {
             if (!url.startsWith('http')) {
@@ -101,7 +137,7 @@ export function UnifiedInput({ onAdd }: UnifiedInputProps) {
             }
         }
 
-        // 3. Default: Text
+        // 4. Default: Text
         const success = await onAdd({
             type: 'text',
             content: trimmed
@@ -115,14 +151,23 @@ export function UnifiedInput({ onAdd }: UnifiedInputProps) {
 
     return (
         <form onSubmit={handleSubmit} className="relative group">
-            <input
-                type="text"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                placeholder="Paste link, image, color or type something..."
-                className="w-full bg-muted/50 border border-border/50 rounded-2xl py-6 px-14 text-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-background transition-all placeholder:text-muted-foreground/40"
-                disabled={isLoading}
-            />
+            <div className="relative">
+                <input
+                    type="text"
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                    className="w-full bg-muted/50 border border-border/50 rounded-2xl py-6 px-14 text-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-background transition-all"
+                    disabled={isLoading}
+                />
+                {!value && (
+                    <div className={cn(
+                        "absolute left-14 top-1/2 -translate-y-1/2 pointer-events-none text-lg text-muted-foreground/40 transition-all duration-500",
+                        isTransitioning ? "opacity-0 -translate-y-2" : "opacity-100 translate-y-[-50%]"
+                    )}>
+                        {HINTS[hintIndex]}
+                    </div>
+                )}
+            </div>
             <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within:text-primary/40 transition-colors">
                 {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Plus className="h-5 w-5" />}
             </div>

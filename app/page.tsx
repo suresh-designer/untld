@@ -9,7 +9,8 @@ import {
   NotesSection,
   ColorsSection,
   LinksSection,
-  ImagesSection
+  ImagesSection,
+  FontsSection
 } from '@/components/moodboard-sections';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -21,6 +22,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut, User } from 'lucide-react';
+import { LimitDialog } from '@/components/limit-dialog';
+import { toast } from 'sonner';
 
 export default function Home() {
   const router = useRouter();
@@ -30,12 +33,15 @@ export default function Home() {
     user,
     isLoaded,
     addFolder,
+    addItemAt,
     renameFolder,
     updateFolderColor,
     deleteFolder,
     addItem,
     updateItem,
     deleteItem,
+    updateMagicPalette,
+    isGeneratingPalette,
     getGroupedItems,
     logout,
     DEFAULT_FOLDER_ID,
@@ -43,9 +49,9 @@ export default function Home() {
   } = useItemStore();
 
   const [activeFolderId, setActiveFolderId] = useState(DEFAULT_FOLDER_ID);
-  const [linksView, setLinksView] = useState<'grid' | 'list'>('grid');
   const [imagesView, setImagesView] = useState<'grid' | 'list'>('grid');
-  const [activeFilter, setActiveFilter] = useState<'all' | 'text' | 'color' | 'link' | 'image'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'text' | 'color' | 'link' | 'image' | 'font'>('all');
+  const [limitType, setLimitType] = useState<'folders' | 'blocks' | null>(null);
 
   useEffect(() => {
     if (isLoaded && !user) {
@@ -67,11 +73,12 @@ export default function Home() {
   const grouped = getGroupedItems(activeFolderId || DEFAULT_FOLDER_ID || '');
 
   const filters = [
-    { id: 'all', label: 'All', count: totalCount },
+    { id: 'all', label: 'All', count: grouped.text.length + grouped.color.length + grouped.link.length + grouped.image.length + (grouped.font?.length || 0) },
     { id: 'text', label: 'Notes', count: grouped.text.length },
     { id: 'color', label: 'Colors', count: grouped.color.length },
     { id: 'link', label: 'Links', count: grouped.link.length },
     { id: 'image', label: 'Moodboard', count: grouped.image.length },
+    ...(grouped.font?.length > 0 ? [{ id: 'font', label: 'Fonts', count: grouped.font.length }] : []),
   ];
 
   if (!isLoaded || !user) {
@@ -97,7 +104,9 @@ export default function Home() {
     );
   }
 
-  const userInitial = user.user_metadata?.full_name?.charAt(0) || user.email?.charAt(0) || '?';
+  const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || '';
+  const firstName = fullName.split(' ')[0];
+  const userInitial = firstName.charAt(0) || '?';
   const userAvatar = user.user_metadata?.avatar_url;
 
   return (
@@ -111,7 +120,10 @@ export default function Home() {
               folders={folders}
               activeFolderId={activeFolderId || DEFAULT_FOLDER_ID || ''}
               onSelectFolder={setActiveFolderId}
-              onAddFolder={addFolder}
+              onAddFolder={(name) => {
+                addFolder(name);
+              }}
+              onLimitReached={setLimitType}
               onRenameFolder={renameFolder}
               onDeleteFolder={deleteFolder}
               onUpdateColor={updateFolderColor}
@@ -119,15 +131,47 @@ export default function Home() {
             />
           </div>
           <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-baseline gap-1.5 px-3 py-1.5 bg-secondary/50 rounded-full border border-border/40">
-              <span className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">Blocks</span>
-              <span className={cn(
-                "text-[11px] font-mono font-bold",
-                totalCount >= 100 ? "text-destructive" : "text-foreground"
-              )}>
-                {totalCount}/100
-              </span>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="hidden md:flex items-baseline gap-1.5 px-3 py-1.5 bg-secondary/50 rounded-full border border-border/40 hover:bg-secondary/80 transition-all">
+                  <span className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">Blocks</span>
+                  <span className={cn(
+                    "text-[11px] font-mono font-bold",
+                    totalCount >= 50 ? "text-destructive" : "text-foreground"
+                  )}>
+                    {totalCount}/50
+                  </span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64 p-2 rounded-2xl">
+                <div className="px-2 py-2">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Usage Breakdown</p>
+                  <div className="space-y-2">
+                    {folders.map(folder => {
+                      const folderItems = items.filter(i => i.folderId === folder.id);
+                      return (
+                        <div key={folder.id} className="flex items-center justify-between text-[11px]">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: folder.color }} />
+                            <span className="font-medium truncate max-w-[120px]">{folder.name}</span>
+                          </div>
+                          <span className="font-mono text-muted-foreground">
+                            {folderItems.length} blocks
+                          </span>
+                        </div>
+                      );
+                    })}
+                    <div className="h-px bg-border/40 my-1" />
+                    <div className="flex items-center justify-between text-[11px] font-bold">
+                      <span>Total</span>
+                      <span className={cn(totalCount >= 50 ? "text-destructive" : "")}>
+                        {totalCount} / 50
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <ThemeToggle />
 
@@ -135,9 +179,9 @@ export default function Home() {
 
             <DropdownMenu>
               <DropdownMenuTrigger className="focus:outline-none">
-                <div className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-secondary/50 transition-colors group">
+                <div className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-secondary/50 transition-colors group cursor-pointer">
                   <span className="text-[11px] font-bold tracking-tight hidden sm:block">
-                    {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                    {firstName}
                   </span>
                   <div className="w-8 h-8 rounded-full bg-secondary border border-border/40 overflow-hidden flex items-center justify-center shrink-0">
                     {userAvatar ? (
@@ -167,7 +211,13 @@ export default function Home() {
       <main className="pt-32 max-w-7xl mx-auto px-6 space-y-12">
         {/* Input Section */}
         <div className="max-w-2xl mx-auto w-full space-y-8">
-          <UnifiedInput onAdd={(item) => addItem({ ...item, folderId: activeFolderId || DEFAULT_FOLDER_ID || '' })} />
+          <UnifiedInput onAdd={async (data) => {
+            if (items.length >= 50) {
+              setLimitType('blocks');
+              return null;
+            }
+            return await addItem({ ...data, folderId: activeFolderId || DEFAULT_FOLDER_ID || '' });
+          }} />
 
           {/* Filter Bar */}
           <div className="flex items-center justify-center gap-1 border-b border-border/40 pb-4">
@@ -196,10 +246,24 @@ export default function Home() {
               activeFilter === 'all' ? "grid grid-cols-1 lg:grid-cols-12 gap-12" : "block"
             )}>
               {(activeFilter === 'all' || activeFilter === 'text') && (
-                <div className={cn(activeFilter === 'all' ? "lg:col-span-8" : "w-full")}>
+                <div className={cn(
+                  activeFilter === 'all'
+                    ? (grouped.color.length > 0 ? "lg:col-span-8" : "lg:col-span-12")
+                    : "w-full"
+                )}>
                   <NotesSection
                     items={grouped.text}
-                    onDelete={deleteItem}
+                    onDelete={async (id) => {
+                      const deleted = await deleteItem(id);
+                      if (deleted) {
+                        toast.success('Note deleted', {
+                          action: {
+                            label: 'Undo',
+                            onClick: () => addItemAt(deleted)
+                          }
+                        });
+                      }
+                    }}
                     onUpdate={updateItem}
                     hideHeading={true}
                   />
@@ -209,7 +273,17 @@ export default function Home() {
                 <div className={cn(activeFilter === 'all' ? "lg:col-span-4" : "w-full max-w-2xl")}>
                   <ColorsSection
                     items={grouped.color}
-                    onDelete={deleteItem}
+                    onDelete={async (id) => {
+                      const deleted = await deleteItem(id);
+                      if (deleted) {
+                        toast.success('Color deleted', {
+                          action: {
+                            label: 'Undo',
+                            onClick: () => addItemAt(deleted)
+                          }
+                        });
+                      }
+                    }}
                     hideHeading={true}
                   />
                 </div>
@@ -221,9 +295,17 @@ export default function Home() {
           {(activeFilter === 'all' || activeFilter === 'link') && (
             <LinksSection
               items={grouped.link}
-              onDelete={deleteItem}
-              view={linksView}
-              onViewChange={setLinksView}
+              onDelete={async (id) => {
+                const deleted = await deleteItem(id);
+                if (deleted) {
+                  toast.success('Link deleted', {
+                    action: {
+                      label: 'Undo',
+                      onClick: () => addItemAt(deleted)
+                    }
+                  });
+                }
+              }}
               hideHeading={true}
             />
           )}
@@ -232,15 +314,53 @@ export default function Home() {
           {(activeFilter === 'all' || activeFilter === 'image') && (
             <ImagesSection
               items={grouped.image}
-              onDelete={deleteItem}
+              onDelete={async (id) => {
+                const deleted = await deleteItem(id);
+                if (deleted) {
+                  toast.success('Image deleted', {
+                    action: {
+                      label: 'Undo',
+                      onClick: () => addItemAt(deleted)
+                    }
+                  });
+                }
+              }}
               view={imagesView}
               onViewChange={setImagesView}
               hideHeading={false}
               palette={Array.from(new Set(grouped.image.flatMap(img => img.palette || []))).slice(0, 5)}
+              onMagicPalette={() => updateMagicPalette(activeFolderId || '')}
+              magicPalette={folders.find(f => f.id === activeFolderId)?.magic_palette}
+              isGenerating={isGeneratingPalette}
+            />
+          )}
+
+          {/* Row 4: Fonts */}
+          {(activeFilter === 'all' || activeFilter === 'font') && (
+            <FontsSection
+              items={grouped.font}
+              onDelete={async (id) => {
+                const deleted = await deleteItem(id);
+                if (deleted) {
+                  toast.success('Font deleted', {
+                    action: {
+                      label: 'Undo',
+                      onClick: () => addItemAt(deleted)
+                    }
+                  });
+                }
+              }}
+              hideHeading={activeFilter === 'font'}
             />
           )}
         </div>
       </main>
+
+      <LimitDialog
+        isOpen={!!limitType}
+        onClose={() => setLimitType(null)}
+        type={limitType}
+      />
     </div>
   );
 }

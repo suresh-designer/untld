@@ -62,7 +62,8 @@ export async function extractPaletteFromImage(imageUrl: string, count: number = 
             resolve([]);
         };
 
-        img.src = imageUrl;
+        // Use our proxy to avoid CORS issues with external images
+        img.src = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
     });
 }
 

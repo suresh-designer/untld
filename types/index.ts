@@ -3,6 +3,7 @@ export interface Folder {
   name: string;
   color: string;
   createdAt: number;
+  magic_palette?: string[];
 }
 
 export interface Bookmark {
@@ -34,7 +35,7 @@ export interface NoteBlock {
   created_at?: string;
 }
 
-export type ItemType = 'text' | 'color' | 'link' | 'image';
+export type ItemType = 'text' | 'color' | 'link' | 'image' | 'font';
 
 export interface Item {
   id: string;
@@ -44,10 +45,10 @@ export interface Item {
   title?: string;
   favicon?: string;
   image_url?: string;
-  imageUrl?: string; // Support for camelCase mapping
+  imageUrl?: string;
   color_hex?: string;
   color_name?: string;
-  palette?: string[]; // Extracted palette for images
+  palette?: string[];
   folderId: string;
-  created_at?: string | number;
+  created_at: string | number;
 }

@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 
 const FOLDERS_TABLE = 'folders';
 const ITEMS_TABLE = 'moodboard_items';
-const DEFAULT_FOLDER_NAME = 'Bookmarks';
+const DEFAULT_FOLDER_NAME = 'Moodboard';
 
 const FOLDER_COLORS = [
     '#22c55e', '#3b82f6', '#ef4444', '#eab308',
@@ -31,6 +31,7 @@ const initialState: MoodboardState = {
 export function useItemStore() {
     const [state, setState] = useState<MoodboardState>(initialState);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [isGeneratingPalette, setIsGeneratingPalette] = useState(false);
 
     const fetchData = useCallback(async (userId: string) => {
         try {
@@ -46,6 +47,7 @@ export function useItemStore() {
                 id: f.id,
                 name: f.name,
                 color: f.color,
+                magic_palette: f.magic_palette,
                 createdAt: f.created_at ? new Date(f.created_at).getTime() : Date.now()
             }));
 
@@ -119,6 +121,10 @@ export function useItemStore() {
     const addFolder = async (name: string, color?: string) => {
         if (!state.user) return null;
 
+        if (state.folders.length >= 3) {
+            throw new Error('Folder limit reached: Maximum 3 folders allowed.');
+        }
+
         const { data: newFolder, error } = await supabase.from(FOLDERS_TABLE).insert({
             name,
             color: color || getRandomColor(),
@@ -191,8 +197,8 @@ export function useItemStore() {
             return null;
         }
 
-        if (state.items.length >= 100) {
-            throw new Error('Limit reached: Maximum 100 blocks allowed.');
+        if (state.items.length >= 50) {
+            throw new Error('Limit reached: Maximum 50 blocks allowed.');
         }
 
         const tempId = uuidv4();
@@ -312,6 +318,9 @@ export function useItemStore() {
 
     const deleteItem = async (id: string) => {
         if (!state.user) return;
+        const itemToDelete = state.items.find(i => i.id === id);
+        if (!itemToDelete) return;
+
         const previousItems = state.items;
         setState((prev) => ({
             ...prev,
@@ -322,7 +331,54 @@ export function useItemStore() {
         if (error) {
             console.error('Error deleting item:', error);
             setState(prev => ({ ...prev, items: previousItems }));
+            return null;
         }
+        return itemToDelete;
+    };
+
+    const addItemAt = async (item: Item) => {
+        if (!state.user) return null;
+
+        const { data: newItem, error } = await supabase.from(ITEMS_TABLE).insert({
+            id: item.id,
+            user_id: state.user.id,
+            type: item.type,
+            content: item.content,
+            title: item.title,
+            favicon: item.favicon,
+            image_url: item.image_url,
+            color_hex: item.color_hex,
+            color_name: item.color_name,
+            palette: item.palette,
+            folder_id: item.folderId,
+            created_at: new Date(item.created_at).toISOString()
+        }).select().single();
+
+        if (error) {
+            console.error('Error restoring item:', error);
+            return null;
+        }
+
+        const itemObj: Item = {
+            id: newItem.id,
+            type: newItem.type as ItemType,
+            content: newItem.content,
+            title: newItem.title,
+            favicon: newItem.favicon,
+            image_url: newItem.image_url,
+            color_hex: newItem.color_hex,
+            color_name: newItem.color_name,
+            palette: newItem.palette,
+            folderId: newItem.folder_id,
+            created_at: new Date(newItem.created_at).getTime()
+        };
+
+        setState((prev) => ({
+            ...prev,
+            items: [itemObj, ...prev.items].sort((a, b) => Number(b.created_at) - Number(a.created_at)),
+        }));
+
+        return itemObj;
     };
 
     const getGroupedItems = (folderId: string) => {
@@ -332,12 +388,111 @@ export function useItemStore() {
             color: folderItems.filter(i => i.type === 'color'),
             link: folderItems.filter(i => i.type === 'link'),
             image: folderItems.filter(i => i.type === 'image'),
+            font: folderItems.filter(i => i.type === 'font'),
         };
     };
 
     const logout = async () => {
         await supabase.auth.signOut();
         setState(initialState);
+    };
+
+    const updateMagicPalette = async (folderId: string) => {
+        if (!state.user) return;
+        setIsGeneratingPalette(true);
+
+        const { toast } = await import('sonner');
+        const processingToast = toast.loading('Analyzing images and generating palette...');
+
+        const folderItems = state.items.filter(i => i.folderId === folderId && i.type === 'image');
+
+        // Backfill palettes if missing
+        const { extractPaletteFromImage } = await import('@/lib/color-utils');
+        let updatedItems = false;
+
+        for (const item of folderItems) {
+            if ((!item.palette || item.palette.length === 0) && item.image_url) {
+                try {
+                    const p = await extractPaletteFromImage(item.image_url);
+                    if (p && p.length > 0) {
+                        item.palette = p;
+                        updatedItems = true;
+                        // Silently update DB for this item
+                        await supabase.from(ITEMS_TABLE).update({ palette: p }).eq('id', item.id);
+                    }
+                } catch (e) {
+                    console.warn('Backfill failed for image:', item.id, e);
+                }
+            }
+        }
+
+        if (updatedItems) {
+            setState(prev => ({ ...prev, items: [...prev.items] }));
+        }
+
+        // Helper to check if two colors are similar
+        const isClose = (h1: string, h2: string) => {
+            const hexToRgb = (hex: string) => {
+                const r = parseInt(hex.substring(1, 3), 16);
+                const g = parseInt(hex.substring(3, 5), 16);
+                const b = parseInt(hex.substring(5, 7), 16);
+                return { r, g, b };
+            };
+            const c1 = hexToRgb(h1);
+            const c2 = hexToRgb(h2);
+            return Math.sqrt(Math.pow(c1.r - c2.r, 2) + Math.pow(c1.g - c2.g, 2) + Math.pow(c1.b - c2.b, 2)) < 45;
+        };
+
+        // Count "votes" per image (cumulative across the folder)
+        const colorVotes: Record<string, number> = {};
+
+        folderItems.forEach(item => {
+            if (!item.palette) return;
+
+            // For each item, find unique color groups it contributes to
+            const itemGroups = new Set<string>();
+            item.palette.forEach(hex => {
+                const similar = Object.keys(colorVotes).find(c => isClose(c, hex));
+                if (similar) {
+                    itemGroups.add(similar);
+                } else {
+                    colorVotes[hex] = 0; // Initialize group
+                    itemGroups.add(hex);
+                }
+            });
+
+            // Each group present in this item gets 1 vote
+            itemGroups.forEach(group => {
+                colorVotes[group] = (colorVotes[group] || 0) + 1;
+            });
+        });
+
+        const palette = Object.entries(colorVotes)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(e => e[0]);
+
+        if (palette.length === 0) {
+            setIsGeneratingPalette(false);
+            toast.dismiss(processingToast);
+            return;
+        }
+
+        setState(prev => ({
+            ...prev,
+            folders: prev.folders.map(f => f.id === folderId ? { ...f, magic_palette: palette } : f)
+        }));
+
+        const { error } = await supabase.from(FOLDERS_TABLE).update({ magic_palette: palette }).eq('id', folderId).eq('user_id', state.user.id);
+
+        setIsGeneratingPalette(false);
+        toast.dismiss(processingToast);
+        if (error) {
+            console.error('Supabase update failed:', error);
+            toast.error('Failed to save Magic Palette. (Check if magic_palette column exists in folders table)');
+        } else {
+            toast.success('Magic Palette generated successfully!');
+        }
     };
 
     return {
@@ -348,8 +503,11 @@ export function useItemStore() {
         updateFolderColor,
         deleteFolder,
         addItem,
+        addItemAt,
         updateItem,
         deleteItem,
+        updateMagicPalette,
+        isGeneratingPalette,
         getGroupedItems,
         logout,
         DEFAULT_FOLDER_ID: state.folders[0]?.id,

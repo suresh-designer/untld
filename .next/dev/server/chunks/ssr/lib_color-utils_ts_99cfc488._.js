@@ -53,7 +53,8 @@ async function extractPaletteFromImage(imageUrl, count = 5) {
             console.warn('Failed to load image for color extraction:', imageUrl);
             resolve([]);
         };
-        img.src = imageUrl;
+        // Use our proxy to avoid CORS issues with external images
+        img.src = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
     });
 }
 function rgbToHex(r, g, b) {

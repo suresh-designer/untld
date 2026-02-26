@@ -1,5 +1,6 @@
 {
   "/api/metadata/route": "app/api/metadata/route.js",
+  "/api/proxy-image/route": "app/api/proxy-image/route.js",
   "/login/page": "app/login/page.js",
   "/page": "app/page.js"
 }

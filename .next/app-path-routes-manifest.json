@@ -2,6 +2,7 @@
   "/_global-error/page": "/_global-error",
   "/_not-found/page": "/_not-found",
   "/api/metadata/route": "/api/metadata",
+  "/api/notify-signup/route": "/api/notify-signup",
   "/api/proxy-image/route": "/api/proxy-image",
   "/favicon.ico/route": "/favicon.ico",
   "/login/page": "/login",

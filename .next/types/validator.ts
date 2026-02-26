@@ -74,6 +74,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../app/api/notify-signup/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/notify-signup">> = Specific
+  const handler = {} as typeof import("../../app/api/notify-signup/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../app/api/proxy-image/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/proxy-image">> = Specific

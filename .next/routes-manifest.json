@@ -47,6 +47,12 @@
       "namedRegex": "^/api/metadata(?:/)?$"
     },
     {
+      "page": "/api/notify-signup",
+      "regex": "^/api/notify\\-signup(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/notify\\-signup(?:/)?$"
+    },
+    {
       "page": "/api/proxy-image",
       "regex": "^/api/proxy\\-image(?:/)?$",
       "routeKeys": {},

@@ -2,6 +2,7 @@
   "/_global-error/page": "app/_global-error/page.js",
   "/_not-found/page": "app/_not-found/page.js",
   "/api/metadata/route": "app/api/metadata/route.js",
+  "/api/notify-signup/route": "app/api/notify-signup/route.js",
   "/api/proxy-image/route": "app/api/proxy-image/route.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
   "/login/page": "app/login/page.js",

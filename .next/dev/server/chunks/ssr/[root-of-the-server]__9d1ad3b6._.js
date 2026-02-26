@@ -266,6 +266,11 @@ function useItemStore() {
             }).select().single();
             if (error) {
                 console.error('Supabase error adding item:', error);
+                console.error('Attempted data:', {
+                    user_id: state.user.id,
+                    type: item.type,
+                    folder_id: folderId
+                });
                 // Rollback optimistic update
                 setState((prev)=>({
                         ...prev,
@@ -315,12 +320,13 @@ function useItemStore() {
             ...updates
         };
         // Map camelCase to snake_case for Supabase
-        if ('folderId' in updates) {
-            dbUpdates.folder_id = updates.folderId;
+        const up = updates;
+        if ('folderId' in up) {
+            dbUpdates.folder_id = up.folderId;
             delete dbUpdates.folderId;
         }
-        if ('imageUrl' in updates) {
-            dbUpdates.image_url = updates.imageUrl;
+        if ('imageUrl' in up) {
+            dbUpdates.image_url = up.imageUrl;
             delete dbUpdates.imageUrl;
         }
         const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from(ITEMS_TABLE).update(dbUpdates).eq('id', id).eq('user_id', state.user.id);

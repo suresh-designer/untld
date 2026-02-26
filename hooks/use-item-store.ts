@@ -237,6 +237,11 @@ export function useItemStore() {
 
             if (error) {
                 console.error('Supabase error adding item:', error);
+                console.error('Attempted data:', {
+                    user_id: state.user.id,
+                    type: item.type,
+                    folder_id: folderId,
+                });
                 // Rollback optimistic update
                 setState((prev) => ({
                     ...prev,
@@ -287,13 +292,14 @@ export function useItemStore() {
         const dbUpdates: any = { ...updates };
 
         // Map camelCase to snake_case for Supabase
-        if ('folderId' in updates) {
-            dbUpdates.folder_id = (updates as any).folderId;
+        const up = updates as any;
+        if ('folderId' in up) {
+            dbUpdates.folder_id = up.folderId;
             delete dbUpdates.folderId;
         }
 
-        if ('imageUrl' in updates) {
-            dbUpdates.image_url = (updates as any).imageUrl;
+        if ('imageUrl' in up) {
+            dbUpdates.image_url = up.imageUrl;
             delete dbUpdates.imageUrl;
         }
 

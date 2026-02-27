@@ -61,8 +61,8 @@ export function NotesSection({ items, onDelete, onUpdate, hideHeading }: Section
             <div className="grid grid-cols-1 gap-4">
                 {items.map(item => (
                     <div key={item.id} className={cn(
-                        "group relative bg-muted/30 border border-border/40 rounded-xl p-4 transition-all",
-                        editingId === item.id ? "ring-2 ring-primary/20 bg-background" : "hover:bg-muted/50"
+                        "group relative bg-muted/30 border border-border/40 rounded-xl p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:bg-muted/40",
+                        editingId === item.id ? "ring-2 ring-primary/20 bg-background" : ""
                     )}>
                         {editingId === item.id ? (
                             <div className="space-y-4">
@@ -144,8 +144,8 @@ export function ColorsSection({ items, onDelete, hideHeading }: { items: Item[];
             {!hideHeading && <SectionLabel label="Colors" count={items.length} />}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                 {items.map(item => (
-                    <div key={item.id} className="group flex flex-col gap-3">
-                        <div className="relative aspect-square bg-muted/20 border border-border/40 rounded-xl overflow-hidden hover:shadow-md transition-all cursor-pointer">
+                    <div key={item.id} className="group flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1">
+                        <div className="relative aspect-square bg-muted/20 border border-border/40 rounded-xl overflow-hidden hover:shadow-xl transition-all cursor-pointer">
                             <div className="absolute inset-0 z-0" style={{ backgroundColor: item.color_hex || '#000' }} />
                             <div className="absolute inset-0 z-10 bg-background/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 flex items-center justify-center gap-3 p-2 transition-opacity">
                                 <button
@@ -183,7 +183,7 @@ export function FontsSection({ items, onDelete, hideHeading }: { items: Item[]; 
             {!hideHeading && <SectionLabel label="Fonts" count={items.length} />}
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
                 {items.map(item => (
-                    <div key={item.id} className="group relative flex flex-col bg-muted/20 border border-border/40 rounded-xl overflow-hidden transition-all hover:bg-muted/30">
+                    <div key={item.id} className="group relative flex flex-col bg-muted/20 border border-border/40 rounded-xl overflow-hidden transition-all duration-300 hover:bg-muted/30 hover:-translate-y-1 hover:shadow-xl">
                         {/* Aa Preview Square */}
                         <div className="aspect-square flex items-center justify-center p-6 bg-background/5">
                             <span
@@ -234,7 +234,7 @@ export function LinksSection({ items, onDelete, hideHeading }: SectionProps) {
                     return (
                         <div
                             key={item.id}
-                            className="group flex items-center gap-4 bg-muted/20 border border-border/20 p-3 rounded-xl hover:bg-muted/30 transition-all cursor-pointer relative"
+                            className="group flex items-center gap-4 bg-muted/20 border border-border/20 p-3 rounded-xl hover:bg-muted/30 hover:-translate-y-0.5 hover:shadow-lg transition-all cursor-pointer relative"
                             onClick={() => window.open(item.content, '_blank')}
                         >
                             {item.favicon ? <img src={item.favicon} alt="" className="h-4 w-4 shrink-0" /> : <Globe className="h-4 w-4 text-muted-foreground shrink-0" />}
@@ -380,10 +380,10 @@ export function ImagesSection({
                                         </button>
                                     </div>
                                     <div
-                                        className="cursor-pointer group-hover:opacity-90 transition-opacity"
+                                        className="cursor-pointer group-hover:opacity-100 transition-opacity"
                                         onClick={() => setSelectedImage(item)}
                                     >
-                                        <img src={item.image_url!} alt="" className="w-full h-auto block transform group-hover:scale-[1.02] transition-transform duration-500" />
+                                        <img src={item.image_url!} alt="" className="w-full h-auto block transform group-hover:scale-[1.03] transition-transform duration-700 ease-out" />
                                     </div>
                                 </div>
 
@@ -479,10 +479,12 @@ function SectionPalette({ colors }: { colors: string[] }) {
                 <button
                     key={`${hex}-${i}`}
                     onClick={() => handleCopy(hex)}
-                    className="group/swatch relative h-4 w-4 rounded-full border border-border/20 shadow-sm transition-all hover:scale-110 cursor-pointer outline-none focus:ring-1 focus:ring-primary/40"
+                    className="group/swatch relative h-5 w-5 rounded-full border border-border/20 shadow-sm transition-all hover:scale-125 cursor-pointer outline-none focus:ring-1 focus:ring-primary/40 active:scale-95"
                     style={{ backgroundColor: hex }}
-                    title={hex}
                 >
+                    <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-foreground text-background text-[8px] font-bold px-1.5 py-0.5 rounded shadow-lg opacity-0 group-hover/swatch:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none uppercase tracking-tighter">
+                        {hex}
+                    </div>
                     {copiedColor === hex && (
                         <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-foreground text-background text-[7px] font-bold px-1 py-0.5 rounded shadow-lg whitespace-nowrap z-50 animate-in fade-in zoom-in duration-200">
                             COPIED

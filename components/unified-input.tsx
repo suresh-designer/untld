@@ -8,12 +8,9 @@ interface UnifiedInputProps {
 }
 
 const HINTS = [
-    "You can paste anything",
-    "#EEEEE - example for color code",
-    "Link",
-    "Notes",
-    "Images",
-    "Make interesting content"
+    "Paste anything — link, image url, color, note",
+    "Font: Inter",
+    "#7564EC"
 ];
 
 export function UnifiedInput({ onAdd }: UnifiedInputProps) {
@@ -28,8 +25,8 @@ export function UnifiedInput({ onAdd }: UnifiedInputProps) {
             setTimeout(() => {
                 setHintIndex((prev) => (prev + 1) % HINTS.length);
                 setIsTransitioning(false);
-            }, 500);
-        }, 3000);
+            }, 600); // Slightly slower, more premium transition
+        }, 4000); // Longer pause on each hint
         return () => clearInterval(interval);
     }, []);
 
@@ -156,12 +153,12 @@ export function UnifiedInput({ onAdd }: UnifiedInputProps) {
                     type="text"
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
-                    className="w-full bg-muted/50 border border-border/50 rounded-2xl py-6 px-14 text-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-background transition-all"
+                    className="w-full bg-muted/50 border border-border/50 rounded-2xl py-8 px-14 text-xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/30 focus:bg-background transition-all focus:shadow-[0_0_20px_rgba(var(--primary),0.05)]"
                     disabled={isLoading}
                 />
                 {!value && (
                     <div className={cn(
-                        "absolute left-14 top-1/2 -translate-y-1/2 pointer-events-none text-lg text-muted-foreground/40 transition-all duration-500",
+                        "absolute left-14 top-1/2 -translate-y-1/2 pointer-events-none text-xl text-muted-foreground/40 transition-all duration-500",
                         isTransitioning ? "opacity-0 -translate-y-2" : "opacity-100 translate-y-[-50%]"
                     )}>
                         {HINTS[hintIndex]}

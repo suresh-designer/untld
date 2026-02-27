@@ -1,7 +1,4 @@
 {
-  "/api/metadata/route": "app/api/metadata/route.js",
-  "/api/notify-signup/route": "app/api/notify-signup/route.js",
-  "/api/proxy-image/route": "app/api/proxy-image/route.js",
   "/login/page": "app/login/page.js",
   "/page": "app/page.js"
 }

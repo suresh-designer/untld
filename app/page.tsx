@@ -24,6 +24,7 @@ import {
 import { LogOut, User } from 'lucide-react';
 import { LimitDialog } from '@/components/limit-dialog';
 import { toast } from 'sonner';
+import { LandingPage } from '@/components/landing-page';
 
 export default function Home() {
   const router = useRouter();
@@ -55,7 +56,7 @@ export default function Home() {
 
   useEffect(() => {
     if (isLoaded && !user) {
-      router.push('/login');
+      // router.push('/login'); // Removed: we show landing page instead
     }
   }, [isLoaded, user, router]);
 
@@ -81,7 +82,7 @@ export default function Home() {
     ...(grouped.font?.length > 0 ? [{ id: 'font', label: 'Fonts', count: grouped.font.length }] : []),
   ];
 
-  if (!isLoaded || !user) {
+  if (!isLoaded) {
     return (
       <div className="min-h-screen bg-background p-8">
         <div className="max-w-7xl mx-auto space-y-12">
@@ -102,6 +103,10 @@ export default function Home() {
         </div>
       </div>
     );
+  }
+
+  if (!user) {
+    return <LandingPage />;
   }
 
   const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || '';
@@ -210,7 +215,12 @@ export default function Home() {
 
       <main className="pt-32 max-w-7xl mx-auto px-6 space-y-12">
         {/* Input Section */}
-        <div className="max-w-2xl mx-auto w-full space-y-8">
+        <div className="max-w-4xl mx-auto w-full space-y-8">
+          <div className="text-center space-y-2">
+            <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-muted-foreground/60 animate-in fade-in slide-in-from-bottom-2 duration-1000">
+              Paste anything. Build your moodboard instantly.
+            </p>
+          </div>
           <UnifiedInput onAdd={async (data) => {
             if (items.length >= 50) {
               setLimitType('blocks');

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Item, Folder, ItemType } from '@/types';
 import { supabase } from '@/lib/supabase';
@@ -32,8 +32,12 @@ export function useItemStore() {
     const [state, setState] = useState<MoodboardState>(initialState);
     const [isLoaded, setIsLoaded] = useState(false);
     const [isGeneratingPalette, setIsGeneratingPalette] = useState(false);
+    const fetchingForUserId = useRef<string | null>(null);
 
     const fetchData = useCallback(async (userId: string) => {
+        if (fetchingForUserId.current === userId) return;
+        fetchingForUserId.current = userId;
+
         try {
             const [foldersRes, itemsRes] = await Promise.all([
                 supabase.from(FOLDERS_TABLE).select('*').eq('user_id', userId).order('created_at', { ascending: true }),
@@ -94,25 +98,15 @@ export function useItemStore() {
     }, []);
 
     useEffect(() => {
-        const getSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user) {
-                setState(prev => ({ ...prev, user: session.user }));
-                fetchData(session.user.id);
-            } else {
-                setIsLoaded(true);
-            }
-        };
-
-        getSession();
-
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             if (session?.user) {
                 setState(prev => ({ ...prev, user: session.user }));
                 fetchData(session.user.id);
             } else {
                 setState(initialState);
+                fetchingForUserId.current = null;
             }
+            setIsLoaded(true);
         });
 
         return () => subscription.unsubscribe();

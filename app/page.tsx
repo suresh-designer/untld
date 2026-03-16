@@ -21,10 +21,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, HelpCircle } from 'lucide-react';
 import { LimitDialog } from '@/components/limit-dialog';
 import { toast } from 'sonner';
 import { LandingPage } from '@/components/landing-page';
+import { UntldLogo } from '@/components/untld-logo';
+import { OnboardingDialog } from '@/components/onboarding-dialog';
+import { motion } from 'framer-motion';
+import { ExternalLink } from 'lucide-react';
 
 export default function Home() {
   const router = useRouter();
@@ -53,10 +57,21 @@ export default function Home() {
   const [imagesView, setImagesView] = useState<'grid' | 'list'>('grid');
   const [activeFilter, setActiveFilter] = useState<'all' | 'text' | 'color' | 'link' | 'image' | 'font'>('all');
   const [limitType, setLimitType] = useState<'folders' | 'blocks' | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    if (isLoaded && user) {
+      const hasSeen = localStorage.getItem(`untld_onboarding_${user.id}`);
+      if (!hasSeen) {
+        setShowOnboarding(true);
+        localStorage.setItem(`untld_onboarding_${user.id}`, 'true');
+      }
+    }
+  }, [isLoaded, user]);
 
   useEffect(() => {
     if (isLoaded && !user) {
-      // router.push('/login'); // Removed: we show landing page instead
+      router.push('/login');
     }
   }, [isLoaded, user, router]);
 
@@ -106,7 +121,7 @@ export default function Home() {
   }
 
   if (!user) {
-    return <LandingPage />;
+    return null;
   }
 
   const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || '';
@@ -120,7 +135,9 @@ export default function Home() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/40">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h1 className="text-[10px] font-bold uppercase tracking-[0.3em] mr-4 hidden sm:block">Untld</h1>
+            <div className="mr-2 hidden sm:block">
+               <UntldLogo className="text-xl text-foreground" />
+            </div>
             <FolderDropdown
               folders={folders}
               activeFolderId={activeFolderId || DEFAULT_FOLDER_ID || ''}
@@ -177,6 +194,13 @@ export default function Home() {
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            <button
+              onClick={() => setShowOnboarding(true)}
+              className="w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full hover:bg-secondary/80 transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
+            >
+              <HelpCircle className="w-5 h-5" />
+            </button>
 
             <ThemeToggle />
 
@@ -275,7 +299,7 @@ export default function Home() {
                       }
                     }}
                     onUpdate={updateItem}
-                    hideHeading={true}
+                    hideHeading={false}
                   />
                 </div>
               )}
@@ -294,7 +318,7 @@ export default function Home() {
                         });
                       }
                     }}
-                    hideHeading={true}
+                    hideHeading={false}
                   />
                 </div>
               )}
@@ -316,7 +340,7 @@ export default function Home() {
                   });
                 }
               }}
-              hideHeading={true}
+              hideHeading={false}
             />
           )}
 
@@ -364,12 +388,40 @@ export default function Home() {
             />
           )}
         </div>
+
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="w-full pt-20 pb-8 flex flex-col items-center justify-center gap-2 text-center"
+        >
+            <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
+                <span>© {new Date().getFullYear()} Untld.</span>
+                <span className="w-1 h-1 rounded-full bg-border" />
+                <a 
+                    href="https://sureshx.me" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 group"
+                >
+                    <span className="animate-gradient-scroll bg-gradient-to-r from-muted-foreground via-foreground to-muted-foreground bg-[length:200%_auto] text-transparent bg-clip-text hover:from-foreground hover:via-muted-foreground hover:to-foreground transition-all duration-500">
+                        Made by Suresh
+                    </span>
+                    <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-muted-foreground" />
+                </a>
+            </div>
+        </motion.div>
       </main>
 
       <LimitDialog
         isOpen={!!limitType}
         onClose={() => setLimitType(null)}
         type={limitType}
+      />
+      
+      <OnboardingDialog 
+        open={showOnboarding} 
+        onOpenChange={setShowOnboarding} 
       />
     </div>
   );

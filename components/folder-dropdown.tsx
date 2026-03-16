@@ -85,11 +85,6 @@ export function FolderDropdown({
 
     return (
         <div className="flex items-center gap-2">
-            <div className="p-1 rounded-md hover:bg-accent transition-colors">
-                <Clover className="h-6 w-6" />
-            </div>
-            <span className="text-muted-foreground font-medium">/</span>
-
             <DropdownMenu onOpenChange={(open) => {
                 if (!open) {
                     setIsAdding(false);
@@ -121,6 +116,7 @@ export function FolderDropdown({
                                     {editingId === folder.id ? (
                                         <Input
                                             autoFocus
+                                            maxLength={30}
                                             className="h-6 text-sm py-0 px-1 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-ring"
                                             value={editName}
                                             onChange={(e) => setEditName(e.target.value)}
@@ -195,6 +191,7 @@ export function FolderDropdown({
                         <form onSubmit={handleAddFolder} className="p-1">
                             <Input
                                 autoFocus
+                                maxLength={30}
                                 placeholder="Group name..."
                                 className="h-8 text-sm bg-background border-none focus-visible:ring-1 focus-visible:ring-ring"
                                 value={newFolderName}

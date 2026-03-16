@@ -153,19 +153,19 @@ export function UnifiedInput({ onAdd }: UnifiedInputProps) {
                     type="text"
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
-                    className="w-full bg-muted/50 border border-border/50 rounded-2xl py-8 px-14 text-xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/30 focus:bg-background transition-all focus:shadow-[0_0_20px_rgba(var(--primary),0.05)]"
+                    className="w-full bg-background border-2 border-primary/20 rounded-2xl py-8 px-14 text-xl font-medium focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary focus:bg-background transition-all focus:shadow-[0_0_20px_rgba(var(--primary),0.1)] hover:border-primary/40 shadow-sm"
                     disabled={isLoading}
                 />
                 {!value && (
                     <div className={cn(
-                        "absolute left-14 top-1/2 -translate-y-1/2 pointer-events-none text-xl text-muted-foreground/40 transition-all duration-500",
+                        "absolute left-14 top-1/2 -translate-y-1/2 pointer-events-none text-xl font-medium text-muted-foreground/60 transition-all duration-500",
                         isTransitioning ? "opacity-0 -translate-y-2" : "opacity-100 translate-y-[-50%]"
                     )}>
                         {HINTS[hintIndex]}
                     </div>
                 )}
             </div>
-            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within:text-primary/40 transition-colors">
+            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-primary/60 group-focus-within:text-primary transition-colors">
                 {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Plus className="h-5 w-5" />}
             </div>
             <div className="absolute right-5 top-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none">

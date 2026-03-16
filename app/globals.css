@@ -86,7 +86,7 @@
 }
 
 .dark {
-  --background: oklch(0 0 0);
+  --background: #161616;
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.1 0 0);
   --card-foreground: oklch(0.985 0 0);
@@ -126,13 +126,15 @@
 
   body {
     @apply bg-background text-foreground;
-    background-image: radial-gradient(circle, #e0e0e0 1.1px, transparent 1.1px);
-    background-size: 20px 20px;
+    background-image: radial-gradient(circle, #00000018 1px, transparent 1px);
+    background-size: 24px 24px;
     background-attachment: fixed;
   }
 
   .dark body {
-    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1.1px, transparent 1.1px);
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-attachment: fixed;
   }
 }
 
@@ -168,4 +170,20 @@
 
 .animate-sparkle-spin {
   animation: sparkle-spin 1.5s infinite ease-in-out;
+}
+
+@keyframes gradient-scroll {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-scroll {
+  animation: gradient-scroll 5s linear infinite;
 }

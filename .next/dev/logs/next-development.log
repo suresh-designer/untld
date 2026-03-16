@@ -1,33 +1,274 @@
-[00:00:01.403] Server  LOG     ✓ Ready in 1114ms
-[00:17:21.501] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:18:01.340] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:18:02.657] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:19:19.835] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:19:23.218] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:26:47.165] Server  LOG     ✓ Compiled in 13ms
-[00:26:47.816] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:26:48.310] Browser WARN    @supabase/gotrue-js: Session as retrieved from URL was issued over 120s ago, URL could be stale 1772182873 1772186473 1772183319
-[00:29:38.136] Server  LOG     ✓ Compiled in 564ms
-[00:29:49.621] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:29:50.163] Browser WARN    @supabase/gotrue-js: Session as retrieved from URL was issued over 120s ago, URL could be stale 1772182873 1772186473 1772183500
-[00:30:31.040] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:34:40.213] Server  LOG     ✓ Compiled in 842ms
-[00:35:12.903] Server  LOG     ✓ Compiled in 166ms
-[01:00:07.061] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:09:16.092] Server  LOG     ✓ Compiled in 1556ms
-[01:11:23.508] Server  LOG     ✓ Compiled in 552ms
-[01:12:11.927] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:12:49.425] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:12:58.382] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:14:20.082] Server  LOG     ✓ Compiled in 485ms
-[01:15:50.936] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:16:00.786] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:22:26.736] Server  LOG     ✓ Compiled in 901ms
-[01:24:59.888] Server  LOG     ✓ Compiled in 1067ms
-[01:25:35.322] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:26:56.452] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:31:14.959] Server  LOG     ✓ Compiled in 39ms
-[01:31:17.575] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:45:23.412] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:49:27.945] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:49:31.431] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:02.163] Server  LOG     ✓ Ready in 1921ms
+[00:00:10.670] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:12.024] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:07:12.272] Server  LOG     ✓ Compiled in 2.5s
+[00:08:27.922] Server  LOG     ✓ Compiled in 752ms
+[00:09:05.385] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:10:54.586] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:11:59.138] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:13:29.418] Server  LOG     ✓ Compiled in 1693ms
+[00:14:12.224] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:17:28.681] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:22:53.090] Server  LOG     ✓ Compiled in 2.9s
+[00:30:25.581] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:31:14.448] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:32:58.953] Server  LOG     ✓ Compiled in 1011ms
+[00:33:37.954] Server  LOG     ✓ Compiled in 951ms
+[00:34:41.048] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:38:49.397] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:40:59.831] Server  LOG     ✓ Compiled in 513ms
+[00:41:28.331] Server  LOG     ✓ Compiled in 305ms
+[00:45:39.880] Server  LOG     ✓ Compiled in 435ms
+[00:45:51.693] Server  LOG     ✓ Compiled in 679ms
+[00:45:52.888] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:46:20.691] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:48:21.846] Server  LOG     ✓ Compiled in 735ms
+[00:48:51.655] Server  LOG     ✓ Compiled in 156ms
+[00:49:08.112] Server  LOG     ✓ Compiled in 203ms
+[00:49:19.664] Server  LOG     ✓ Compiled in 121ms
+[01:32:49.127] Server  LOG     ✓ Compiled in 786ms
+[01:33:14.445] Server  LOG     ✓ Compiled in 882ms
+[01:33:15.221] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+[01:33:15.221] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:33:15.221] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+[01:33:15.221] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:33:15.711] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:33:39.864] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+[01:33:39.865] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:33:39.865] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+[01:33:39.865] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:33:52.627] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:33:55.753] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+[01:33:55.753] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:33:55.753] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+[01:33:55.753] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:34:01.818] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+[01:34:01.818] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:34:01.819] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+[01:34:01.819] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:35:16.324] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+[01:35:16.324] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:35:16.324] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+[01:35:16.324] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:35:16.369] Server  LOG     ✓ Compiled in 26ms
+[01:36:09.491] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+[01:36:09.497] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:36:09.498] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+[01:36:09.498] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:38:49.440] Server  LOG     ✓ Compiled in 411ms
+[01:38:58.996] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+[01:38:58.996] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:38:58.996] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+[01:38:58.996] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:40:26.217] Server  LOG     ✓ Compiled in 591ms
+[01:40:50.041] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:40:50.048] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:46:56.828] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:47:28.309] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:47:44.461] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:47:44.462] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:48:09.390] Server  LOG     ✓ Compiled in 911ms
+[01:48:29.976] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:49:34.480] Server  LOG     ✓ Compiled in 127ms
+[01:50:49.645] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:50:49.651] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:51:03.528] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:51:03.536] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:51:13.189] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:51:13.190] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:51:26.132] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:54:13.535] Server  LOG     ✓ Compiled in 709ms
+[01:56:15.895] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:56:15.906] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:56:22.369] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:56:22.369] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[01:58:31.709] Server  LOG     ✓ Compiled in 1254ms
+[01:59:52.674] Browser ERROR   ./app/page.tsx:413:7
+Parsing ecmascript source code failed
+  411 |             </div>
+  412 |         </motion.div
+> 413 |       </main>
+      |       ^
+  414 |
+  415 |       <LimitDialog
+  416 |         isOpen={!!limitType}
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[01:59:52.674] Browser ERROR   ./app/page.tsx:413:8
+Parsing ecmascript source code failed
+  411 |             </div>
+  412 |         </motion.div
+> 413 |       </main>
+      |        ^^^^^^
+  414 |
+  415 |       <LimitDialog
+  416 |         isOpen={!!limitType}
+
+Unterminated regexp literal
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[02:00:18.200] Server  LOG     ✓ Compiled in 477ms
+[02:00:18.663] Browser ERROR   ./app/page.tsx:413:7
+Parsing ecmascript source code failed
+  411 |             </div>
+  412 |         </motion.div
+> 413 |       </main>
+      |       ^
+  414 |
+  415 |       <LimitDialog
+  416 |         isOpen={!!limitType}
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[02:00:18.663] Browser ERROR   ./app/page.tsx:413:8
+Parsing ecmascript source code failed
+  411 |             </div>
+  412 |         </motion.div
+> 413 |       </main>
+      |        ^^^^^^
+  414 |
+  415 |       <LimitDialog
+  416 |         isOpen={!!limitType}
+
+Unterminated regexp literal
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[02:02:05.359] Server  LOG     ✓ Compiled in 1118ms
+[02:02:05.670] Browser ERROR   ./app/page.tsx:412:22
+Parsing ecmascript source code failed
+  410 |                     <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-muted-foreground" />
+  411 |                 </a>
+> 412 |         </motion.div>
+      |                      ^
+> 413 |       </main>
+      | ^^^^^^^
+  414 |
+  415 |       <LimitDialog
+  416 |         isOpen={!!limitType}
+
+Expected '</', got 'jsx text'
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[02:02:20.662] Browser ERROR   ./app/page.tsx:409:21
+Parsing ecmascript source code failed
+  407 |                     <span className="animate-shimmer bg-clip-text text-transparent bg-[length:200%_auto] bg-gradient-to-r from-muted-foreground via-foreground to-muted-foreground hover:from-foreground hover:via-muted-foreground hover:to-foreground transition-all duration-500">
+  408 |                     <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-muted-foreground" />
+> 409 |                 </a>
+      |                     ^
+> 410 |             </div>
+      | ^^^^^^^^^^^^^
+  411 |         </motion.div>
+  412 |       </main>
+  413 |
+
+Expected '</', got 'jsx text'
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[02:02:37.419] Server  LOG     ✓ Compiled in 293ms
+[02:03:10.328] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[02:03:11.434] Browser WARN    @supabase/gotrue-js: Session as retrieved from URL was issued over 120s ago, URL could be stale 1773663634 1773667234 1773664341
+[02:04:18.157] Server  LOG     ✓ Compiled in 965ms
+[02:04:31.954] Server  LOG     ✓ Compiled in 288ms
+[02:06:02.023] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[02:06:02.031] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
